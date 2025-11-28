@@ -1,0 +1,1145 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8" />
+  <title>APD – Anti Phishing Detector Demo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      --bg: #050816;
+      --card: #0f172a;
+      --accent: #22c55e;
+      --accent-soft: rgba(34, 197, 94, 0.12);
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+      --danger: #ef4444;
+      --border: #1f2937;
+    }
+    * { box-sizing: border-box; margin:0; padding:0; }
+    body {
+      background: radial-gradient(circle at top, #1f2937 0, #020617 40%, #000 100%);
+      color: var(--text);
+      min-height: 100vh;
+    }
+    a { color: inherit; }
+
+    .container {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 24px 16px 64px;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      gap: 12px;
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-size: 14px;
+    }
+    .logo-badge {
+      width: 28px;
+      height: 28px;
+      border-radius: 999px;
+      border: 2px solid var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+    }
+    .pill {
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.3);
+      padding: 4px 10px;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    /* Top nav */
+    .nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      font-size: 11px;
+    }
+    .nav a {
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(51, 65, 85, 0.9);
+      text-decoration: none;
+      color: var(--muted);
+      background: rgba(15, 23, 42, 0.9);
+    }
+    .nav a:hover {
+      border-color: var(--accent);
+      color: var(--text);
+    }
+
+    @media (max-width: 800px) {
+      header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .pill {
+        align-self: flex-start;
+      }
+    }
+
+    main {
+      display: grid;
+      grid-template-columns: minmax(0, 2.1fr) minmax(0, 2fr);
+      gap: 24px;
+      margin-bottom: 32px;
+    }
+    @media (max-width: 900px) {
+      main {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    .hero-title {
+      font-size: clamp(32px, 5vw, 40px);
+      font-weight: 700;
+      line-height: 1.1;
+      margin-bottom: 12px;
+    }
+    .hero-title span {
+      background: linear-gradient(to right, #22c55e, #14b8a6);
+      -webkit-background-clip: text;
+      color: transparent;
+    }
+    .hero-subtitle {
+      color: var(--muted);
+      font-size: 14px;
+      max-width: 520px;
+      line-height: 1.5;
+      margin-bottom: 18px;
+    }
+    .hero-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+    .hero-badge {
+      font-size: 11px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid rgba(148, 163, 184, 0.3);
+      color: var(--muted);
+    }
+    .hero-badge strong {
+      color: var(--text);
+    }
+    .buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    button, .btn-ghost {
+      border-radius: 999px;
+      border: none;
+      padding: 9px 16px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
+      text-decoration: none;
+    }
+    button {
+      background: linear-gradient(120deg, #22c55e, #16a34a);
+      color: #022c22;
+      box-shadow: 0 10px 25px rgba(22, 163, 74, 0.45);
+    }
+    button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 16px 30px rgba(22, 163, 74, 0.55);
+    }
+    .btn-ghost {
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      color: var(--muted);
+    }
+    .btn-ghost:hover {
+      transform: translateY(-1px);
+      background: rgba(15, 23, 42, 1);
+    }
+    .small-hint {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 16px;
+    }
+    @media (max-width: 600px) {
+      .metrics {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+    .metric-card {
+      border-radius: 16px;
+      padding: 10px 12px;
+      background: radial-gradient(circle at top left, rgba(34, 197, 94, 0.08), rgba(15, 23, 42, 0.95));
+      border: 1px solid rgba(51, 65, 85, 0.9);
+    }
+    .metric-label {
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+    .metric-value {
+      font-size: 18px;
+      font-weight: 600;
+    }
+    .metric-footnote {
+      font-size: 10px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    /* Right side: cards */
+    .stack {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .card {
+      background: rgba(15, 23, 42, 0.94);
+      border-radius: 18px;
+      border: 1px solid rgba(51, 65, 85, 0.95);
+      padding: 14px 14px 12px;
+      box-shadow: 0 18px 40px rgba(15, 23, 42, 0.9);
+    }
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      gap: 8px;
+    }
+    .card-title {
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: var(--muted);
+    }
+    .card-tag {
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      border: 1px solid rgba(34, 197, 94, 0.4);
+      white-space: nowrap;
+    }
+    .card-body {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+      margin-top: 10px;
+    }
+    @media (max-width: 900px) {
+      .steps { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    .step {
+      border-radius: 14px;
+      border: 1px dashed rgba(55, 65, 81, 0.9);
+      padding: 8px;
+      background: rgba(15, 23, 42, 0.9);
+    }
+    .step-num {
+      font-size: 11px;
+      color: var(--accent);
+      margin-bottom: 3px;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+    }
+    .step-title {
+      font-size: 12px;
+      color: var(--text);
+      margin-bottom: 3px;
+    }
+    .step-text {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    /* Demo table */
+    .demo-toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+      flex-wrap: wrap;
+    }
+    .demo-toolbar-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: var(--accent);
+      box-shadow: 0 0 8px rgba(34, 197, 94, 0.8);
+    }
+    .status-text {
+      font-size: 11px;
+      color: var(--muted);
+    }
+    .status-text span {
+      color: var(--accent);
+      font-weight: 500;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 11px;
+      margin-top: 4px;
+    }
+    th, td {
+      padding: 6px 4px;
+      text-align: left;
+    }
+    th {
+      font-weight: 500;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      border-bottom: 1px solid var(--border);
+    }
+    tbody tr {
+      border-bottom: 1px solid rgba(30, 41, 59, 0.9);
+    }
+    tbody tr:last-child {
+      border-bottom: none;
+    }
+    .risk-medium {
+      color: #facc15;
+    }
+    .risk-high {
+      color: var(--danger);
+      font-weight: 600;
+    }
+    .risk-low {
+      color: var(--accent);
+    }
+    .flag-pill {
+      padding: 2px 6px;
+      border-radius: 999px;
+      font-size: 10px;
+      border: 1px solid rgba(248, 250, 252, 0.12);
+    }
+    .flag-phishing {
+      border-color: rgba(248, 113, 113, 0.6);
+      color: var(--danger);
+      background: rgba(127, 29, 29, 0.4);
+    }
+    .flag-clean {
+      border-color: rgba(34, 197, 94, 0.6);
+      color: var(--accent);
+      background: rgba(22, 101, 52, 0.4);
+    }
+
+    .risk-legend {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 6px;
+      font-size: 10px;
+      color: var(--muted);
+    }
+
+    /* Integration grid */
+    .integration-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 6px;
+    }
+    @media (max-width: 900px) {
+      .integration-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+    .integration-chip {
+      border-radius: 14px;
+      border: 1px solid rgba(55, 65, 81, 0.9);
+      padding: 6px 8px;
+      font-size: 11px;
+      color: var(--muted);
+    }
+    .integration-chip strong {
+      display: block;
+      color: var(--text);
+      margin-bottom: 2px;
+    }
+
+    /* Big sections (AI500 talab bo'limlari) */
+    .section {
+      margin-top: 32px;
+      padding: 18px 16px;
+      border-radius: 18px;
+      background: rgba(15, 23, 42, 0.96);
+      border: 1px solid rgba(55, 65, 81, 0.9);
+      box-shadow: 0 18px 40px rgba(15, 23, 42, 0.9);
+    }
+    .section-title {
+      font-size: 18px;
+      margin-bottom: 4px;
+      font-weight: 600;
+    }
+    .section-subtitle {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 12px;
+    }
+    .section-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+    .section-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+      margin-top: 8px;
+    }
+    @media (max-width: 800px) {
+      .section-grid {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+    .section-card {
+      background: radial-gradient(circle at top left, rgba(34, 197, 94, 0.05), rgba(15, 23, 42, 0.98));
+      border-radius: 14px;
+      border: 1px solid rgba(55, 65, 81, 0.9);
+      padding: 10px 12px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+    .section-card h3 {
+      font-size: 14px;
+      margin-bottom: 6px;
+      color: var(--text);
+    }
+    .section-card ul {
+      padding-left: 16px;
+      margin-top: 4px;
+    }
+    .section-card li {
+      margin-bottom: 4px;
+    }
+    .tag-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 6px;
+      font-size: 11px;
+    }
+    .tag {
+      padding: 3px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      color: var(--muted);
+    }
+
+    /* Team cards */
+    .team-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 8px;
+    }
+    @media (max-width: 700px) {
+      .team-grid {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+    .member-card {
+      border-radius: 14px;
+      border: 1px solid rgba(55, 65, 81, 0.9);
+      padding: 10px 12px;
+      background: rgba(15, 23, 42, 0.96);
+      font-size: 12px;
+    }
+    .member-name {
+      font-weight: 600;
+      margin-bottom: 2px;
+    }
+    .member-role {
+      font-size: 11px;
+      color: var(--accent);
+      margin-bottom: 4px;
+    }
+    .member-skill-label {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+    .member-links {
+      margin-top: 6px;
+      font-size: 11px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .member-links a {
+      text-decoration: underline;
+      text-decoration-style: dotted;
+      text-underline-offset: 2px;
+      color: var(--muted);
+    }
+
+    /* Roadmap */
+    .stage-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 8px 0 10px;
+      font-size: 11px;
+    }
+    .stage-pill {
+      padding: 4px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(75, 85, 99, 0.9);
+      color: var(--muted);
+    }
+    .stage-pill.active {
+      border-color: var(--accent);
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-weight: 500;
+    }
+    .roadmap-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      font-size: 12px;
+    }
+    @media (max-width: 900px) {
+      .roadmap-grid {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+    .roadmap-card {
+      border-radius: 14px;
+      border: 1px dashed rgba(75, 85, 99, 0.9);
+      padding: 8px 10px;
+    }
+    .roadmap-card h3 {
+      font-size: 13px;
+      margin-bottom: 4px;
+      color: var(--text);
+    }
+    .roadmap-card ul {
+      padding-left: 16px;
+      margin-top: 4px;
+    }
+
+    /* Approach list */
+    .approach-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 2.1fr) minmax(0, 1.8fr);
+      gap: 16px;
+      font-size: 13px;
+    }
+    @media (max-width: 900px) {
+      .approach-grid {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+    .approach-list ul {
+      padding-left: 16px;
+      margin-top: 4px;
+    }
+    .stack-list {
+      list-style: none;
+      padding-left: 0;
+      margin-top: 4px;
+    }
+    .stack-list li {
+      margin-bottom: 4px;
+    }
+    .mono {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 11px;
+    }
+
+    footer {
+      margin-top: 20px;
+      font-size: 11px;
+      color: var(--muted);
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      flex-wrap: wrap;
+      border-top: 1px solid rgba(31, 41, 55, 0.9);
+      padding-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="logo">
+        <div class="logo-badge">A</div>
+        <div>APD • Anti Phishing Detector</div>
+      </div>
+      <nav class="nav">
+        <a href="#problem-solution">Muammo &amp; yechim</a>
+        <a href="#team">Jamoa</a>
+        <a href="#why-us">Nega biz?</a>
+        <a href="#roadmap">Yo‘l xaritasi</a>
+        <a href="#approach">Tex yondashuv</a>
+        <a href="#demo-card">Demo</a>
+      </nav>
+      <div class="pill">Fintech · Fraud Prevention · Demo</div>
+    </header>
+
+    <main>
+      <!-- LEFT: HERO -->
+      <section>
+        <div class="hero-title">
+          Kartadagi <span>phishing</span> tranzaksiyalarni
+          real vaqt rejimida bloklaymiz.
+        </div>
+        <p class="hero-subtitle">
+          APD – bank hamda UZCARD/HUMO tizimlariga ulangan, zararli APKlar,
+          shubhali havolalar va g‘ayrioddiy tranzaksiyalarni aniqlab,
+          ularni avtomatik bloklaydigan modul.
+        </p>
+
+        <div class="hero-badges">
+          <div class="hero-badge"><strong>Fintech &amp; xavfsizlik</strong> sohasidagi real muammo</div>
+          <div class="hero-badge">Maishiy foydalanuvchilar uchun ijtimoiy ta’sir</div>
+          <div class="hero-badge">AI asosidagi risk-skoring va fraud detection</div>
+        </div>
+
+        <div class="buttons">
+          <button id="demoScrollBtn">
+            Demoni ko‘rsatish
+            <span>▶</span>
+          </button>
+          <a href="#problem-solution" class="btn-ghost">
+            Muammo va yechim
+          </a>
+        </div>
+
+        <div class="small-hint">
+          Hakamlar uchun eslatma: quyidagi raqamlar <strong>demo ma’lumotlar</strong>,
+          lekin real bank/processing integratsiya oqimini ko‘rsatadi.
+        </div>
+
+        <div class="metrics">
+          <div class="metric-card">
+            <div class="metric-label">Bloklangan phishing tranzaksiyalar</div>
+            <div class="metric-value">98%</div>
+            <div class="metric-footnote">Simulyatsiya va tarixiy demo dataset asosida</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Risk skoring vaqti</div>
+            <div class="metric-value">&lt; 120 ms</div>
+            <div class="metric-footnote">Pre-check API javobi</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Soha</div>
+            <div class="metric-value">Fintech · Cybersecurity</div>
+            <div class="metric-footnote">Kartalar, mobil banking va onlayn to‘lovlar</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- RIGHT: CARDS (HOW IT WORKS + DEMO + INTEGRATION SHORT) -->
+      <section class="stack">
+        <!-- How it works -->
+        <article class="card">
+          <div class="card-header">
+            <div class="card-title">Qanday ishlaydi?</div>
+            <div class="card-tag">Detection pipeline</div>
+          </div>
+          <div class="card-body">
+            <div class="steps">
+              <div class="step">
+                <div class="step-num">01 · Collect</div>
+                <div class="step-title">Tranzaksiya metama’lumotlari</div>
+                <div class="step-text">
+                  Karta, qurilma ID, IP, ilova signallari va
+                  APK xashlari to‘planadi.
+                </div>
+              </div>
+              <div class="step">
+                <div class="step-num">02 · Analyse</div>
+                <div class="step-title">ML risk modeli</div>
+                <div class="step-text">
+                  Model phishing APKlar, g‘alati pattern va xbet/kazino kabi
+                  merchantlarni ajratadi.
+                </div>
+              </div>
+              <div class="step">
+                <div class="step-num">03 · Decide</div>
+                <div class="step-title">Real-time qaror</div>
+                <div class="step-text">
+                  Risk balliga qarab: Allow / Challenge (3DS) / Block qarori
+                  qaytariladi.
+                </div>
+              </div>
+              <div class="step">
+                <div class="step-num">04 · Learn</div>
+                <div class="step-title">Feedback loop</div>
+                <div class="step-text">
+                  Chargeback va foydalanuvchi shikoyatlari asosida model
+                  doimiy ravishda yaxshilanadi.
+                </div>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- Live demo -->
+        <article class="card" id="demo-card">
+          <div class="card-header">
+            <div class="card-title">Demo · Real-time skoring</div>
+            <div class="card-tag">Live simulation</div>
+          </div>
+          <div class="card-body">
+            <div class="demo-toolbar">
+              <div class="demo-toolbar-left">
+                <div class="status-dot"></div>
+                <div class="status-text">
+                  APD status: <span>On</span> · sandbox rejim
+                </div>
+              </div>
+              <button id="simulateBtn" style="font-size:11px; padding:5px 10px;">
+                Phishing tranzaksiyani simulyatsiya qilish
+              </button>
+            </div>
+
+            <table>
+              <thead>
+                <tr>
+                  <th>Vaqt</th>
+                  <th>Karta</th>
+                  <th>Merchant</th>
+                  <th>Summa</th>
+                  <th>Risk</th>
+                  <th>Qaror</th>
+                </tr>
+              </thead>
+              <tbody id="txTableBody">
+                <tr>
+                  <td>10:12:31</td>
+                  <td>8600 •••• 42</td>
+                  <td>Ucell payment</td>
+                  <td>45 000 so‘m</td>
+                  <td class="risk-low">Low</td>
+                  <td><span class="flag-pill flag-clean">Ruxsat berildi</span></td>
+                </tr>
+                <tr>
+                  <td>10:13:02</td>
+                  <td>9860 •••• 19</td>
+                  <td>Market.uz</td>
+                  <td>139 000 so‘m</td>
+                  <td class="risk-medium">Medium</td>
+                  <td><span class="flag-pill">3DS challenge</span></td>
+                </tr>
+              </tbody>
+            </table>
+
+            <div class="risk-legend">
+              <div><strong>Legenda:</strong></div>
+              <div>● Low – odatiy tranzaksiya</div>
+              <div>● Medium – qo‘shimcha tasdiq (3DS)</div>
+              <div>● High – phishing / avtomatik block</div>
+            </div>
+          </div>
+        </article>
+
+        <!-- Integration -->
+        <article class="card">
+          <div class="card-header">
+            <div class="card-title">Integratsiya</div>
+            <div class="card-tag">Bank · UZCARD · HUMO</div>
+          </div>
+          <div class="card-body">
+            <p>
+              APD bank ilovasi ichida alohida SDK sifatida yoki
+              processing markaziga ulangan mikroservis sifatida ishlashi mumkin.
+            </p>
+            <div class="integration-grid">
+              <div class="integration-chip">
+                <strong>On-device SDK</strong>
+                Zararli APK va fake ilovalarni aniqlash.
+              </div>
+              <div class="integration-chip">
+                <strong>Pre-authorization API</strong>
+                Tranzaksiya bankka tushishidan oldin risk skoring.
+              </div>
+              <div class="integration-chip">
+                <strong>Post-transaction monitor</strong>
+                Casino/xbet kabi patternlarni kuzatish.
+              </div>
+              <div class="integration-chip">
+                <strong>Webhook alerts</strong>
+                Shubhali aktivlikda real-time ogohlantirish.
+              </div>
+              <div class="integration-chip">
+                <strong>Admin panel</strong>
+                Fraud jamoa uchun analytics va qo‘lda block.
+              </div>
+              <div class="integration-chip">
+                <strong>SIEM integratsiya</strong>
+                Bank xavfsizlik tizimlariga log eksport.
+              </div>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+
+    <!-- 1. MUAMMO VA YECHIM -->
+    <section class="section" id="problem-solution">
+      <div class="section-label">1-bo‘lim</div>
+      <h2 class="section-title">Muammo va Yechim</h2>
+      <p class="section-subtitle">
+        Soha: <strong>Fintech · Sog‘liqni saqlash emas, lekin moliyaviy xavfsizlik va ijtimoiy ta’sir</strong> —
+        phishing orqali kartadagi pullar yo‘qotilishi odamlarga bevosita psixologik va moliyaviy zarba beradi.
+      </p>
+
+      <div class="section-grid">
+        <div class="section-card">
+          <h3>Muammo: phishing va zararli APKlar tufayli kartalar bo‘shab qolmoqda</h3>
+          <p>
+            Oxirgi yillarda O‘zbekistonda ham:
+          </p>
+          <ul>
+            <li>Telegram-botlar, “bank ilovasi” nomidagi <strong>zararli APKlar</strong> orqali kartadan to‘liq pul yechib olish;</li>
+            <li>Casino/xbet tipidagi saytlar va shubhali merchantlar orqali noqonuniy tranzaksiyalar;</li>
+            <li>Moliyaviy savod pastligi sababli foydalanuvchilar <strong>havola va SMS-larga ishonib qolishi</strong>;</li>
+            <li>Bank uchun – ko‘plab <strong>chargeback</strong>lar, reputatsion yo‘qotish va qo‘shimcha xarajatlar.</li>
+          </ul>
+          <p style="margin-top:6px;">
+            Natijada: oddiy foydalanuvchi yig‘gan pullaridan ayriladi, banklar esa risk va xarajatlarni oshirib yuboradi.
+          </p>
+          <div class="tag-row">
+            <span class="tag">Fintech</span>
+            <span class="tag">Cybersecurity</span>
+            <span class="tag">Ijtimoiy ta’sir</span>
+          </div>
+        </div>
+
+        <div class="section-card">
+          <h3>Yechim: APD – Anti Phishing Detector</h3>
+          <p>
+            APD – bank va kartali to‘lov tizimlari (UZCARD/HUMO) bilan integratsiya qilinadigan modul bo‘lib:
+          </p>
+          <ul>
+            <li>Mobil ilova va brauzerdan kelayotgan signal va tranzaksiyalarni <strong>real vaqt rejimida tahlil qiladi</strong>;</li>
+            <li>Zararli APK, shubhali domenlar, casino/xbet kabi merchantlarni <strong>AI modeli orqali tanib oladi</strong>;</li>
+            <li>Har bir tranzaksiyaga <strong>risk ball</strong> beradi va: Allow / 3DS Challenge / Block qarorini qaytaradi;</li>
+            <li>Bankdagi fraud jamoaga <strong>monitoring paneli</strong> va alertlar bilan ishlash imkoniyatini beradi.</li>
+          </ul>
+          <p style="margin-top:6px;">
+            Kutilayotgan ta’sir: kartadan pul o‘g‘irlanishi sonini keskin kamaytirish, foydalanuvchi ishonchini oshirish
+            va bank uchun zararlarni kamaytirish.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. JAMOA -->
+    <section class="section" id="team">
+      <div class="section-label">2-bo‘lim</div>
+      <h2 class="section-title">Jamoa haqida ma’lumot</h2>
+      <p class="section-subtitle">
+        Har bir jamoa a’zosi AI500 Telegram boti orqali ro‘yxatdan o‘tgan.
+        Quyida rollar, ko‘nikmalar va texnologik stack keltirilgan.
+        <strong>(Ism-familya va linklarni o‘zingiznikiga almashtiring.)</strong>
+      </p>
+
+      <div class="team-grid">
+        <!-- A'zo 1 -->
+        <div class="member-card">
+          <div class="member-name">Ism Familya 1</div>
+          <div class="member-role">Backend &amp; ML injeneri</div>
+          <div>
+            <span class="member-skill-label">Ko‘nikmalar:</span>
+            Python, FastAPI, REST API, PostgreSQL, Redis, ML (scikit-learn, XGBoost),
+            fraud detection, feature engineering, Docker.
+          </div>
+          <div class="member-skill-label">Texnologik stack:</div>
+          <ul class="stack-list">
+            <li>Backend: <span class="mono">Python, FastAPI, PostgreSQL</span></li>
+            <li>AI/ML: <span class="mono">scikit-learn, XGBoost, Jupyter</span></li>
+            <li>Infra: <span class="mono">Docker, GitHub Actions</span></li>
+          </ul>
+          <div class="member-links">
+            <!-- hreflarni o'zingizning profilingizga almashtiring -->
+            <a href="#" target="_blank">GitHub</a>
+            <a href="#" target="_blank">LinkedIn</a>
+          </div>
+        </div>
+
+        <!-- A'zo 2 -->
+        <div class="member-card">
+          <div class="member-name">Ism Familya 2</div>
+          <div class="member-role">Mobil &amp; SDK developer</div>
+          <div>
+            <span class="member-skill-label">Ko‘nikmalar:</span>
+            Android (Kotlin/Java), iOS (Swift), mobil SDK dizayni, qurilma fingerprinting,
+            dastur ichida xavfsizlik (root/jailbreak, emulator detection).
+          </div>
+          <div class="member-skill-label">Texnologik stack:</div>
+          <ul class="stack-list">
+            <li>Android: <span class="mono">Kotlin, Retrofit, Jetpack</span></li>
+            <li>iOS: <span class="mono">Swift, URLSession</span></li>
+            <li>SDK: <span class="mono">Modular architecture, logging</span></li>
+          </ul>
+          <div class="member-links">
+            <a href="#" target="_blank">Portfolio</a>
+            <a href="#" target="_blank">GitHub</a>
+          </div>
+        </div>
+
+        <!-- A'zo 3 -->
+        <div class="member-card">
+          <div class="member-name">Ism Familya 3</div>
+          <div class="member-role">Frontend &amp; UI/UX dizayner</div>
+          <div>
+            <span class="member-skill-label">Ko‘nikmalar:</span>
+            Web UI, dizayn sistemalar, responsiv layout, data vizualizatsiya,
+            Figma &amp; prototiplash.
+          </div>
+          <div class="member-skill-label">Texnologik stack:</div>
+          <ul class="stack-list">
+            <li>Frontend: <span class="mono">React, TypeScript, Tailwind CSS</span></li>
+            <li>Design: <span class="mono">Figma, Design systems</span></li>
+          </ul>
+          <div class="member-links">
+            <a href="#" target="_blank">Dribbble/Behance</a>
+            <a href="#" target="_blank">Portfolio</a>
+          </div>
+        </div>
+
+        <!-- A'zo 4 -->
+        <div class="member-card">
+          <div class="member-name">Ism Familya 4</div>
+          <div class="member-role">Product &amp; Domain ekspert (Fintech/Fraud)</div>
+          <div>
+            <span class="member-skill-label">Ko‘nikmalar:</span>
+            Product discovery, bank jarayonlari, kartali to‘lovlar, risk siyosati,
+            UX research, stakeholder bilan muloqot.
+          </div>
+          <div class="member-skill-label">Texnologik stack:</div>
+          <ul class="stack-list">
+            <li>Tools: <span class="mono">Notion, Jira, Miro</span></li>
+            <li>Analytics: <span class="mono">SQL basics, Amplitude/GA</span></li>
+          </ul>
+          <div class="member-links">
+            <a href="#" target="_blank">LinkedIn</a>
+          </div>
+        </div>
+      </div>
+      <p class="section-subtitle" style="margin-top:10px;">
+        <strong>Eslatma:</strong> AI500 qoidalariga ko‘ra faqat Telegram boti orqali ro‘yxatdan o‘tgan a’zolar hisobga olinadi.
+        Shu sabab barcha jamoa a’zolarining ro‘yxatdan o‘tganini tekshiramiz.
+      </p>
+    </section>
+
+    <!-- 3. NEGA AYNAN BIZ -->
+    <section class="section" id="why-us">
+      <div class="section-label">3-bo‘lim</div>
+      <h2 class="section-title">Nega aynan bizning jamoa bu muammoni hal qila oladi?</h2>
+      <p class="section-subtitle">
+        Jamoamiz kombinatsiyasi – <strong>fintech domen tajribasi + ML/AI + mobil xavfsizlik + UI/UX</strong>.
+        Bu bizga nafaqat texnik jihatdan, balki biznes va foydalanuvchi nuqtai nazaridan ham to‘liq yechim ishlab chiqish imkonini beradi.
+      </p>
+
+      <div class="section-grid">
+        <div class="section-card">
+          <h3>Kuchli tomonlar va tajriba</h3>
+          <ul>
+            <li>Bank va to‘lov tizimlari APIlari bilan ishlash bo‘yicha amaliy tajriba (payment gateway, 3DS, callback’lar);</li>
+            <li>Fraud detection va anomaly detection bo‘yicha ML loyihalarida ishtirok etgan a’zolar;</li>
+            <li>Mobil ilovalar ichida xavfsizlik va “zararli ilovalar”ni aniqlash bo‘yicha tajriba;</li>
+            <li>Fintech foydalanuvchilari bilan intervyu va CJM chizish bo‘yicha product tajriba.</li>
+          </ul>
+        </div>
+        <div class="section-card">
+          <h3>Motivatsiya va bizni boshqalardan ajratib turadigan nuqtalar</h3>
+          <ul>
+            <li>Kundalik hayotda yaqinlarimiz pulini phishing orqali yo‘qotgan holatlarni ko‘rganmiz – <strong>muammo biz uchun shaxsiy</strong>;</li>
+            <li>AI’ni “faqat chat-bot” emas, balki <strong>real, o‘lchab bo‘ladigan xavfsizlik yechimida</strong> qo‘llashni xohlaymiz;</li>
+            <li>Texnik jihatdan, kichik, lekin production’ga tayyor bo‘lgan modulni 2–3 oy ichida chiqarish rejamiz bor;</li>
+            <li>Jamoa ichida “faqat hackathon uchun” emas, balki uzun muddatli mahsulot qilish motivatsiyasi bor.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. YO'L XARITASI -->
+    <section class="section" id="roadmap">
+      <div class="section-label">4-bo‘lim</div>
+      <h2 class="section-title">Yo‘l xaritasi va hozirgi bosqich</h2>
+      <p class="section-subtitle">
+        Hozirgi holat: <strong>Prototip</strong> – ishlaydigan demo, risk-skoring logikasi va integratsiya arxitekturasi aniqlangan.
+      </p>
+
+      <div class="stage-row">
+        <div class="stage-pill">G‘oya</div>
+        <div class="stage-pill active">Prototip</div>
+        <div class="stage-pill">MVP</div>
+        <div class="stage-pill">Ishga tushirilgan</div>
+      </div>
+
+      <div class="roadmap-grid">
+        <div class="roadmap-card">
+          <h3>0–1 oy · Prototip (hozirgi bosqich)</h3>
+          <ul>
+            <li>Risk-skoring logikasi va ML fitur setini aniqlash;</li>
+            <li>Sandbox API orqali demo tranzaksiyalarni skoring qilish;</li>
+            <li>Admin panel uchun minimal UI (monitoring);</li>
+            <li>On-device SDK uchun texnik talablarni yozish.</li>
+          </ul>
+        </div>
+        <div class="roadmap-card">
+          <h3>1–3 oy · MVP</h3>
+          <ul>
+            <li>Biror test bank / demo processing bilan integratsiya;</li>
+            <li>On-device SDK (Android) ning 1-versiyasi;</li>
+            <li>ML modelni real (anonimlashtirilgan) ma’lumotlarda sinash;</li>
+            <li>Webhook va alert tizimini ishga tushirish.</li>
+          </ul>
+        </div>
+        <div class="roadmap-card">
+          <h3>3–6 oy · Ishga tushirish va kengaytirish</h3>
+          <ul>
+            <li>Prod rejimida pilot ishga tushirish (cheklangan kartalar guruhi);</li>
+            <li>iOS SDK va qo‘shimcha integratsiyalar (SIEM, antifraud tizimlari);</li>
+            <li>Modelni doimiy retraining va explainability dashboard;</li>
+            <li>Tariflash va biznes modeli (per tranzaksiya / per karta).</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. TEX YONDASHUV -->
+    <section class="section" id="approach">
+      <div class="section-label">5-bo‘lim</div>
+      <h2 class="section-title">Muammoni qanday hal qilmoqchimiz? (Texnik yondashuv)</h2>
+      <p class="section-subtitle">
+        Quyida asosiy texnik qadamlar, foydalaniladigan vositalar va AI’dan foydalanish yondashuvi keltirilgan.
+      </p>
+
+      <div class="approach-grid">
+        <div class="section-card approach-list">
+          <h3>Asosiy qadamlar</h3>
+          <ul>
+            <li><strong>1-qadam – Ma’lumot to‘plash:</strong> tranzaksiya ma’lumotlari, qurilma fingerprint, IP, ilova versiyasi, APK xashi, merchant kategoriyasi (MCC) va vaqt xususiyatlari.</li>
+            <li><strong>2-qadam – Feature engineering:</strong> foydalanuvchining odatiy xatti-harakati (soat, summa, location) bilan solishtirish, merchant reputatsiyasi, domain/MCC risk balli.</li>
+            <li><strong>3-qadam – ML risk modeli:</strong> gradient boosting / tree-based model (masalan, XGBoost) orqali har bir tranzaksiya uchun <strong>0–1 oralig‘ida risk ball</strong> hisoblash.</li>
+            <li><strong>4-qadam – Qaror qabul qilish:</strong> thresholdlar asosida:
+              <ul>
+                <li>0.0–0.3 – Allow;</li>
+                <li>0.3–0.7 – 3DS challenge / qo‘shimcha tasdiq;</li>
+                <li>0.7–1.0 – Block + alert bank antifraud jamoasiga.</li>
+              </ul>
+            </li>
+            <li><strong>5-qadam – Feedback loop:</strong> chargeback, shikoyatlar va “false positive/false negative” belgilangan tranzaksiyalar bilan modelni qayta o‘qitish.</li>
+          </ul>
+        </div>
+
+        <div class="section-card">
+          <h3>Texnologiyalar va AI’dan foydalanish</h3>
+          <ul class="stack-list">
+            <li><strong>Backend &amp; API:</strong> <span class="mono">Python, FastAPI, PostgreSQL, Redis</span></li>
+            <li><strong>ML / AI:</strong> <span class="mono">scikit-learn, XGBoost, pandas, numpy</span></li>
+            <li><strong>Streaming &amp; logging:</strong> <span class="mono">Kafka yoki RabbitMQ (opsiyonal), ELK stack</span></li>
+            <li><strong>Mobil SDK:</strong> <span class="mono">Kotlin (Android), Swift (iOS)</span> – zararli APK signallarini yuborish.</li>
+            <li><strong>Frontend (admin panel &amp; demo sayti):</strong> hozircha
+              <span class="mono">HTML, CSS, JavaScript</span>, keyinchalik <span class="mono">React + TypeScript</span>.</li>
+          </ul>
+          <p style="margin-top:6px;">
+            <strong>AI dan foydalanish:</strong>
+          </p>
+          <ul>
+            <li>Supervised ML modeli – “phishing / non-phishing” tranzaksiyalar uchun binary classifier;</li>
+            <li>Anomaly detection (masalan, Isolation Forest) – odatdagi xatti-harakatdan keskin farq qiladigan tranzaksiyalarni ajratish;</li>
+            <li>Merchant/domain reputatsiya skori – tashqi ma’lumot manbalari va tarixiy ma’lumotlardan kelib chiqib.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      <div>© 2025 · APD – Anti Phishing Detector · Demo versiya</div>
+      <div>Kontakt: demo@apd.ai · Telegram: @apd_demo</div>
+    </footer>
+  </div>
+
+  <script>
+    // Demo scroll
+    document.getElementById("demoScrollBtn")?.addEventListener("click", function () {
+      document.getElementById("demo-card")?.scrollIntoView({ behavior: "smooth" });
+    });
+
+    // Simple simulation
+    const simulateBtn = document.getElementById("simulateBtn");
+    const txTableBody = document.getElementById("txTableBody");
+
+    function addPhishingRow() {
+      const now = new Date();
+      const t =
+        String(now.getHours()).padStart(2, "0") +
+        ":" +
+        String(now.getMinutes()).padStart(2, "0") +
+        ":" +
+        String(now.getSeconds()).padStart(2, "0");
+
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${t}</td>
+        <td>8600 •••• 73</td>
+        <td>xbet-android-apk.com</td>
+        <td>3 500 000 so‘m</td>
+        <td class="risk-high">High</td>
+        <td><span class="flag-pill flag-phishing">Bloklandi (phishing)</span></td>
+      `;
+      txTableBody.prepend(tr);
+    }
+
+    simulateBtn?.addEventListener("click", addPhishingRow);
+  </script>
+</body>
+</html>
