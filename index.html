@@ -955,7 +955,8 @@
       <div class="section-label">3-bo‘lim</div>
       <h2 class="section-title">Nega aynan bizning jamoa bu muammoni hal qila oladi?</h2>
       <p class="section-subtitle">
-        Jamoamiz kombinatsiyasi – <strong>fintech domen tajribasi + ML/AI + mobil xavfsizlik + UI/UX</strong>.
+        Jamoamiz kombinatsiyasi – <strong>fintech domen tajribasi + ML/AI bilimlarga ega bo'lgan, "MAAB INNOVATION" kompaniyasida ishlab 
+        kelayotgan hodimlardan tashkil topgan. ML,AI,AI Agent sohalari bo'yicha yevropa kompaniyalariga yechimlar taqdim qilgan.</strong>.
         Bu bizga nafaqat texnik jihatdan, balki biznes va foydalanuvchi nuqtai nazaridan ham to‘liq yechim ishlab chiqish imkonini beradi.
       </p>
 
@@ -963,7 +964,7 @@
         <div class="section-card">
           <h3>Kuchli tomonlar va tajriba</h3>
           <ul>
-            <li>Bank va to‘lov tizimlari APIlari bilan ishlash bo‘yicha amaliy tajriba (payment gateway, 3DS, callback’lar);</li>
+            <li>Bank va to‘lov tizimlari APIlari bilan ishlash bo‘yicha amaliy tajriba;</li>
             <li>Fraud detection va anomaly detection bo‘yicha ML loyihalarida ishtirok etgan a’zolar;</li>
             <li>Mobil ilovalar ichida xavfsizlik va “zararli ilovalar”ni aniqlash bo‘yicha tajriba;</li>
             <li>Fintech foydalanuvchilari bilan intervyu va CJM chizish bo‘yicha product tajriba.</li>
@@ -972,10 +973,10 @@
         <div class="section-card">
           <h3>Motivatsiya va bizni boshqalardan ajratib turadigan nuqtalar</h3>
           <ul>
-            <li>Kundalik hayotda yaqinlarimiz pulini phishing orqali yo‘qotgan holatlarni ko‘rganmiz – <strong>muammo biz uchun shaxsiy</strong>;</li>
+            <li>Kundalik hayotda yaqinlarimiz pulini phishing orqali yo‘qotgan holatlarni ko‘ryabmiz – <strong>muammo biz uchun shaxsiy</strong>;</li>
             <li>AI’ni “faqat chat-bot” emas, balki <strong>real, o‘lchab bo‘ladigan xavfsizlik yechimida</strong> qo‘llashni xohlaymiz;</li>
             <li>Texnik jihatdan, kichik, lekin production’ga tayyor bo‘lgan modulni 2–3 oy ichida chiqarish rejamiz bor;</li>
-            <li>Jamoa ichida “faqat hackathon uchun” emas, balki uzun muddatli mahsulot qilish motivatsiyasi bor.</li>
+            <li>Jamoa ichida “faqat hackathon uchun” emas, balki uzoq muddatli mahsulot qilish motivatsiyasi bor.</li>
           </ul>
         </div>
       </div>
@@ -986,7 +987,7 @@
       <div class="section-label">4-bo‘lim</div>
       <h2 class="section-title">Yo‘l xaritasi va hozirgi bosqich</h2>
       <p class="section-subtitle">
-        Hozirgi holat: <strong>Prototip</strong> – ishlaydigan demo, risk-skoring logikasi va integratsiya arxitekturasi aniqlangan.
+        Hozirgi holat: <strong>Prototip</strong> – Modelning boshlang'ich versiyasi, risk-skoring logikasi va integratsiya arxitekturasi aniqlangan.
       </p>
 
       <div class="stage-row">
@@ -1000,19 +1001,19 @@
         <div class="roadmap-card">
           <h3>0–1 oy · Prototip (hozirgi bosqich)</h3>
           <ul>
-            <li>Risk-skoring logikasi va ML fitur setini aniqlash;</li>
-            <li>Sandbox API orqali demo tranzaksiyalarni skoring qilish;</li>
-            <li>Admin panel uchun minimal UI (monitoring);</li>
-            <li>On-device SDK uchun texnik talablarni yozish.</li>
+            <li>Risk-skoring logikasi va ML future setini aniqlash;</li>
+            <li>Modelni baholash uchun generatsiya qilingan (synthetic) tranzaksiya ma’lumotlarida skoring pipeline’ini sinash;</li>
+            <li>(Kelgusi reja)Admin panel uchun minimal UI (monitoring);</li>
+            <li>(Kelgusi reja)On-device SDK uchun texnik talablarni yozish.</li>
           </ul>
         </div>
         <div class="roadmap-card">
           <h3>1–3 oy · MVP</h3>
           <ul>
             <li>Biror test bank / demo processing bilan integratsiya;</li>
-            <li>On-device SDK (Android) ning 1-versiyasi;</li>
             <li>ML modelni real (anonimlashtirilgan) ma’lumotlarda sinash;</li>
             <li>Webhook va alert tizimini ishga tushirish.</li>
+            <li>On-device SDK (Android) ning 1-versiyasi;</li>
           </ul>
         </div>
         <div class="roadmap-card">
@@ -1038,27 +1039,46 @@
       <div class="approach-grid">
         <div class="section-card approach-list">
           <h3>Asosiy qadamlar</h3>
-          <ul>
-            <li><strong>1-qadam – Ma’lumot to‘plash:</strong> tranzaksiya ma’lumotlari, qurilma fingerprint, IP, ilova versiyasi, APK xashi, merchant kategoriyasi (MCC) va vaqt xususiyatlari.</li>
-            <li><strong>2-qadam – Feature engineering:</strong> foydalanuvchining odatiy xatti-harakati (soat, summa, location) bilan solishtirish, merchant reputatsiyasi, domain/MCC risk balli.</li>
-            <li><strong>3-qadam – ML risk modeli:</strong> gradient boosting / tree-based model (masalan, XGBoost) orqali har bir tranzaksiya uchun <strong>0–1 oralig‘ida risk ball</strong> hisoblash.</li>
-            <li><strong>4-qadam – Qaror qabul qilish:</strong> thresholdlar asosida:
-              <ul>
-                <li>0.0–0.3 – Ruxsat;</li>
-                <li>0.3–0.7 – Qo‘shimcha tasdiq;</li>
-                <li>0.7–1.0 – Block + alert bank antifraud jamoasiga.</li>
-              </ul>
-            </li>
-            <li><strong>5-qadam – Feedback loop:</strong> chargeback, shikoyatlar va “false positive/false negative” belgilangan tranzaksiyalar bilan modelni qayta o‘qitish.</li>
-          </ul>
+  <ul>
+    <li>
+      <strong>1-qadam – Ma’lumotlarni yig‘ish:</strong>
+      Har bir tranzaksiya haqida asosiy ma’lumotlar — summa, vaqt, joylashuv, qurilma turi, IP va merchant kategoriyasi — tizimga olinadi.
+    </li>
+    <li>
+      <strong>2-qadam – Foydalanuvchi odatlarini o‘rganish:</strong>
+      Tizim foydalanuvchi odatda qaysi vaqtda, qaysi summalarda, qaysi joylarda va qanday merchantlarda xarid qilishini o‘rganadi.
+      Agar yangi tranzaksiya foydalanuvchining odatlaridan keskin farq qilsa, tizim bu tranzaksiyani xavfli deb baholaydi.
+    </li>
+    <li>
+      <strong>3-qadam – Xavfni baholash:</strong>
+      Tizim to‘plangan ma’lumotlar asosida har bir tranzaksiyaga
+      <strong>0 dan 1 gacha bo‘lgan xavf balli</strong> beradi.
+      Ball qancha yuqori bo‘lsa — tranzaksiya shuncha shubhali hisoblanadi.
+    </li>
+    <li>
+      <strong>4-qadam – Qaror qabul qilish:</strong>
+      Xavf darajasiga qarab tizim quyidagicha harakat qiladi:
+      <ul>
+        <li><strong>Past xavf:</strong> Tranzaksiya odatdagi kabi o‘tadi.</li>
+        <li><strong>O‘rtacha xavf:</strong> Qo‘shimcha tasdiq so‘raladi (masalan, OTP yoki push-tasdiq).</li>
+        <li><strong>Yuqori xavf:</strong> Tranzaksiya bloklanadi va bank antifraud jamoasiga alert yuboriladi.</li>
+      </ul>
+    </li>
+    <li>
+      <strong>5-qadam – O‘z-o‘zidan yaxshilanib borish:</strong>
+      Tizim real hayotdagi holatlar — chargebacklar, mijoz shikoyatlari,
+      noto‘g‘ri bloklangan yoki o‘tkazib yuborilgan tranzaksiyalar — asosida doimiy o‘rganib boradi
+      va vaqt o‘tishi bilan yanada aniqroq baholay boshlaydi.
+    </li>
+  </ul>
         </div>
 
         <div class="section-card">
           <h3>Texnologiyalar va AI’dan foydalanish</h3>
           <ul class="stack-list">
-            <li><strong>Backend &amp; API:</strong> <span class="mono">Python, FastAPI, PostgreSQL, Redis</span></li>
+            <li><strong>Backend &amp; API:</strong> <span class="mono">Python, FastAPI, PostgreSQL</span></li>
             <li><strong>ML / AI:</strong> <span class="mono">scikit-learn, XGBoost, pandas, numpy</span></li>
-            <li><strong>Streaming &amp; logging:</strong> <span class="mono">Kafka yoki RabbitMQ (opsiyonal), ELK stack</span></li>
+            <li><strong>Streaming &amp; logging:</strong> <span class="mono">Kafka yoki RabbitMQ , ELK stack</span></li>
             <li><strong>Mobil SDK:</strong> <span class="mono">Kotlin (Android), Swift (iOS)</span> – zararli APK signallarini yuborish.</li>
             <li><strong>Frontend (admin panel &amp; demo sayti):</strong> hozircha
               <span class="mono">HTML, CSS, JavaScript</span>, keyinchalik <span class="mono">React + TypeScript</span>.</li>
@@ -1116,5 +1136,6 @@
   </script>
 </body>
 </html>
+
 
 
