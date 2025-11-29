@@ -1102,40 +1102,167 @@
   </div>
 
   <script>
-    // Demo scroll
-    document.getElementById("demoScrollBtn")?.addEventListener("click", function () {
-      document.getElementById("demo-card")?.scrollIntoView({ behavior: "smooth" });
-    });
+  // Demo scroll
+  document.getElementById("demoScrollBtn")?.addEventListener("click", function () {
+    document.getElementById("demo-card")?.scrollIntoView({ behavior: "smooth" });
+  });
 
-    // Simple simulation
-    const simulateBtn = document.getElementById("simulateBtn");
-    const txTableBody = document.getElementById("txTableBody");
+  const simulateBtn = document.getElementById("simulateBtn");
+  const txTableBody = document.getElementById("txTableBody");
 
-    function addPhishingRow() {
-      const now = new Date();
-      const t =
-        String(now.getHours()).padStart(2, "0") +
-        ":" +
-        String(now.getMinutes()).padStart(2, "0") +
-        ":" +
-        String(now.getSeconds()).padStart(2, "0");
+  // Tasodifiy ma'lumotlar to'plamlari
+  const cardBins = ["8600", "9860", "4276", "5440"];
+  const merchants = [
+    { name: "Ucell payment", baseRisk: 0.1, type: "telco" },
+    { name: "Market.uz", baseRisk: 0.2, type: "eshop" },
+    { name: "FoodExpress", baseRisk: 0.15, type: "food" },
+    { name: "xbet-android-apk.com", baseRisk: 0.85, type: "gambling" },
+    { name: "luckycasino-online.net", baseRisk: 0.9, type: "gambling" },
+    { name: "Payme billing", baseRisk: 0.12, type: "fintech" },
+    { name: "TaxiGo app", baseRisk: 0.18, type: "transport" }
+  ];
+  const cities = ["Toshkent", "Samarqand", "Andijon", "Nukus", "Unknown"];
+  const countries = ["UZ", "UZ", "UZ", "UZ", "??"];
+  const channels = ["MOBILE_APP", "WEB", "POS"];
+  const deviceTypes = ["Android", "iOS", "Web", "Unknown"];
 
-      const tr = document.createElement("tr");
-      tr.innerHTML = `
-        <td>${t}</td>
-        <td>8600 •••• 73</td>
-        <td>xbet-android-apk.com</td>
-        <td>3 500 000 so‘m</td>
-        <td class="risk-high">High</td>
-        <td><span class="flag-pill flag-phishing">Bloklandi (phishing)</span></td>
-      `;
-      txTableBody.prepend(tr);
+  function randomChoice(arr) {
+    return arr[Math.floor(Math.random() * arr.length)];
+  }
+
+  function randomInt(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+
+  function formatAmount(num) {
+    return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+  }
+
+  // Demo tranzaksiya generatsiyasi
+  function generateRandomTransaction() {
+    const now = new Date();
+    const hour = now.getHours();
+
+    const merchant = randomChoice(merchants);
+    let amount;
+
+    // Gambling bo'lsa, summani kattaroq qilishga moyillik
+    if (merchant.type === "gambling") {
+      amount = randomInt(500_000, 5_000_000);
+    } else {
+      amount = randomInt(20_000, 1_500_000);
     }
 
-    simulateBtn?.addEventListener("click", addPhishingRow);
-  </script>
+    const cardBin = randomChoice(cardBins);
+    const last2 = String(randomInt(10, 99));
+
+    const cityIndex = randomInt(0, cities.length - 1);
+    const city = cities[cityIndex];
+    const country = countries[cityIndex];
+
+    return {
+      timestamp: now,
+      hour,
+      cardMasked: `${cardBin} •••• ${last2}`,
+      merchant: merchant,
+      amount,
+      currency: "UZS",
+      channel: randomChoice(channels),
+      city,
+      country,
+      deviceType: randomChoice(deviceTypes),
+      isRecurring: Math.random() < 0.15 // 15% takroriy to'lov
+    };
+  }
+
+  // Oddiy rule-based "pseudo-ML" skoring funksiyasi
+  function scoreTransaction(tx) {
+    let score = tx.merchant.baseRisk; // 0–1 oralig'ida boshlang'ich risk
+
+    // Katta summa bo'lsa
+    if (tx.amount > 2_000_000) score += 0.15;
+    if (tx.amount > 3_500_000) score += 0.05;
+
+    // Kechasi va tongda (23:00–06:00) bo'lsa
+    if (tx.hour >= 23 || tx.hour <= 6) score += 0.1;
+
+    // Unknown city/country bo'lsa
+    if (tx.city === "Unknown" || tx.country === "??") score += 0.1;
+
+    // Unknown device bo'lsa
+    if (tx.deviceType === "Unknown") score += 0.05;
+
+    // Kanal WEB bo'lsa va gambling bo'lsa – biroz ko'proq risk
+    if (tx.channel === "WEB" && tx.merchant.type === "gambling") score += 0.05;
+
+    // Takroriy to'lovlar odatda xavfsizroq (subscription)
+    if (tx.isRecurring) score -= 0.05;
+
+    // Score ni 0–1 oralig'ida cheklaymiz
+    score = Math.max(0, Math.min(1, score));
+
+    let riskLevel, decision;
+
+    if (score < 0.3) {
+      riskLevel = "Low";
+      decision = "ALLOW";
+    } else if (score < 0.7) {
+      riskLevel = "Medium";
+      decision = "CHALLENGE";
+    } else {
+      riskLevel = "High";
+      decision = "BLOCK";
+    }
+
+    return { riskScore: score, riskLevel, decision };
+  }
+
+  function addRowToTable(tx, result) {
+    const t = tx.timestamp;
+    const timeStr =
+      String(t.getHours()).padStart(2, "0") +
+      ":" +
+      String(t.getMinutes()).padStart(2, "0") +
+      ":" +
+      String(t.getSeconds()).padStart(2, "0");
+
+    const tr = document.createElement("tr");
+
+    let riskClass = "risk-low";
+    if (result.riskLevel === "Medium") riskClass = "risk-medium";
+    if (result.riskLevel === "High") riskClass = "risk-high";
+
+    let decisionHtml = "";
+    if (result.decision === "ALLOW") {
+      decisionHtml = '<span class="flag-pill flag-clean">Ruxsat berildi</span>';
+    } else if (result.decision === "CHALLENGE") {
+      decisionHtml = '<span class="flag-pill">3DS / OTP talab qilinadi</span>';
+    } else {
+      decisionHtml = '<span class="flag-pill flag-phishing">Bloklandi (phishing)</span>';
+    }
+
+    tr.innerHTML = `
+      <td>${timeStr}</td>
+      <td>${tx.cardMasked}</td>
+      <td>${tx.merchant.name}</td>
+      <td>${formatAmount(tx.amount)} so‘m</td>
+      <td class="${riskClass}">${result.riskLevel}</td>
+      <td>${decisionHtml}</td>
+    `;
+
+    // Yangi qatordan tepaga qo'shamiz
+    txTableBody.prepend(tr);
+  }
+
+  simulateBtn?.addEventListener("click", () => {
+    const tx = generateRandomTransaction();
+    const result = scoreTransaction(tx);
+    addRowToTable(tx, result);
+  });
+</script>
 </body>
 </html>
+
 
 
 
