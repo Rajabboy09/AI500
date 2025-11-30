@@ -726,64 +726,7 @@
           </div>
         </article>
 
-        <!-- Live demo -->
-        <article class="card" id="demo-card">
-          <div class="card-header">
-            <div class="card-title">Demo · Real-time skoring</div>
-            <div class="card-tag">Live simulation</div>
-          </div>
-          <div class="card-body">
-            <div class="demo-toolbar">
-              <div class="demo-toolbar-left">
-                <div class="status-dot"></div>
-                <div class="status-text">
-                  APD status: <span>On</span> · sandbox rejim
-                </div>
-              </div>
-              <button id="simulateBtn" style="font-size:11px; padding:5px 10px;">
-                Phishing tranzaksiyani simulyatsiya qilish
-              </button>
-            </div>
 
-            <table>
-              <thead>
-                <tr>
-                  <th>Vaqt</th>
-                  <th>Karta</th>
-                  <th>Merchant</th>
-                  <th>Summa</th>
-                  <th>Risk</th>
-                  <th>Qaror</th>
-                </tr>
-              </thead>
-              <tbody id="txTableBody">
-                <tr>
-                  <td>10:12:31</td>
-                  <td>8600 •••• 42</td>
-                  <td>Click payment</td>
-                  <td>45 000 so‘m</td>
-                  <td class="risk-low">Low</td>
-                  <td><span class="flag-pill flag-clean">Ruxsat berildi</span></td>
-                </tr>
-                <tr>
-                  <td>10:13:02</td>
-                  <td>9860 •••• 19</td>
-                  <td>Market.uz</td>
-                  <td>139 000 so‘m</td>
-                  <td class="risk-medium">Medium</td>
-                  <td><span class="flag-pill">3DS challenge</span></td>
-                </tr>
-              </tbody>
-            </table>
-
-            <div class="risk-legend">
-              <div><strong>Risk:</strong></div>
-              <div>● Low – odatiy tranzaksiya</div>
-              <div>● Medium – qo‘shimcha tasdiq (3DS)</div>
-              <div>● High – phishing / avtomatik block</div>
-            </div>
-          </div>
-        </article>
 
         <!-- Integration -->
         <article class="card">
@@ -824,9 +767,75 @@
             </div>
           </div>
         </article>
-      </section>
-    </main>
+     
+       <!-- Demo -->
+    </main><article class="card" id="demo-card">
+    <div class="card-header">
+      <div class="card-title">Demo · Real-time skoring</div>
+      <div class="card-tag">Live simulation</div>
+    </div>
+    <div class="card-body">
+      <div class="demo-toolbar">
+        <div class="demo-toolbar-left">
+          <div class="status-dot"></div>
+          <div class="status-text">
+            APD status: <span>On</span> · sandbox rejim
+          </div>
+        </div>
+        <button id="simulateBtn" style="font-size:11px; padding:5px 10px;">
+          Phishing tranzaksiyani simulyatsiya qilish
+        </button>
+      </div>
 
+      <table>
+        <thead>
+          <tr>
+            <th>Vaqt</th>
+            <th>Karta</th>
+            <th>Merchant</th>
+            <th>Summa</th>
+            <th>Kanal</th>
+            <th>Qurilma</th>
+            <th>Shahar</th>
+            <th>Risk</th>
+            <th>Qaror</th>
+          </tr>
+        </thead>
+        <tbody id="txTableBody">
+          <tr>
+            <td>10:12:31</td>
+            <td>8600 •••• 42</td>
+            <td>Click payment</td>
+            <td>45 000 so‘m</td>
+            <td>MOBILE_APP</td>
+            <td>Android</td>
+            <td>Toshkent (UZ)</td>
+            <td class="risk-low">Low</td>
+            <td><span class="flag-pill flag-clean">Ruxsat berildi</span></td>
+          </tr>
+          <tr>
+            <td>10:13:02</td>
+            <td>9860 •••• 19</td>
+            <td>Market.uz</td>
+            <td>139 000 so‘m</td>
+            <td>WEB</td>
+            <td>Web</td>
+            <td>Samarqand (UZ)</td>
+            <td class="risk-medium">Medium</td>
+            <td><span class="flag-pill">3DS challenge</span></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="risk-legend">
+        <div><strong>Risk:</strong></div>
+        <div>Low – odatiy tranzaksiya</div>
+        <div>Medium – qo‘shimcha tasdiq (3DS)</div>
+        <div>High – phishing / avtomatik block</div>
+      </div>
+    </div>
+  </article>
+  </section>
     <!-- 1. MUAMMO VA YECHIM -->
     <section class="section" id="problem-solution">
       <div class="section-label">1-bo‘lim</div>
@@ -1152,13 +1161,13 @@ Bu skorlar ML modelga qo‘shimcha signal bo‘lib kiradi va xavf darajasini kuc
   // Tasodifiy ma'lumotlar to'plamlari
   const cardBins = ["8600", "9860", "4276", "5440"];
   const merchants = [
-    { name: "Ucell payment", baseRisk: 0.1, type: "telco" },
+    { name: "Click payment", baseRisk: 0.1, type: "telco" },
     { name: "Market.uz", baseRisk: 0.2, type: "eshop" },
     { name: "FoodExpress", baseRisk: 0.15, type: "food" },
     { name: "xbet-android-apk.com", baseRisk: 0.85, type: "gambling" },
     { name: "luckycasino-online.net", baseRisk: 0.9, type: "gambling" },
     { name: "Payme billing", baseRisk: 0.12, type: "fintech" },
-    { name: "TaxiGo app", baseRisk: 0.18, type: "transport" }
+    { name: "YandexGo Market ", baseRisk: 0.18, type: "transport" }
   ];
   const cities = ["Toshkent", "Samarqand", "Andijon", "Nukus", "Unknown"];
   const countries = ["UZ", "UZ", "UZ", "UZ", "??"];
@@ -1256,42 +1265,44 @@ Bu skorlar ML modelga qo‘shimcha signal bo‘lib kiradi va xavf darajasini kuc
     return { riskScore: score, riskLevel, decision };
   }
 
-  function addRowToTable(tx, result) {
-    const t = tx.timestamp;
-    const timeStr =
-      String(t.getHours()).padStart(2, "0") +
-      ":" +
-      String(t.getMinutes()).padStart(2, "0") +
-      ":" +
-      String(t.getSeconds()).padStart(2, "0");
+ function addRowToTable(tx, result) {
+  const t = tx.timestamp;
+  const timeStr =
+    String(t.getHours()).padStart(2, "0") +
+    ":" +
+    String(t.getMinutes()).padStart(2, "0") +
+    ":" +
+    String(t.getSeconds()).padStart(2, "0");
 
-    const tr = document.createElement("tr");
+  const tr = document.createElement("tr");
 
-    let riskClass = "risk-low";
-    if (result.riskLevel === "Medium") riskClass = "risk-medium";
-    if (result.riskLevel === "High") riskClass = "risk-high";
+  let riskClass = "risk-low";
+  if (result.riskLevel === "Medium") riskClass = "risk-medium";
+  if (result.riskLevel === "High") riskClass = "risk-high";
 
-    let decisionHtml = "";
-    if (result.decision === "ALLOW") {
-      decisionHtml = '<span class="flag-pill flag-clean">Ruxsat berildi</span>';
-    } else if (result.decision === "CHALLENGE") {
-      decisionHtml = '<span class="flag-pill">3DS / OTP talab qilinadi</span>';
-    } else {
-      decisionHtml = '<span class="flag-pill flag-phishing">Bloklandi (phishing)</span>';
-    }
-
-    tr.innerHTML = `
-      <td>${timeStr}</td>
-      <td>${tx.cardMasked}</td>
-      <td>${tx.merchant.name}</td>
-      <td>${formatAmount(tx.amount)} so‘m</td>
-      <td class="${riskClass}">${result.riskLevel}</td>
-      <td>${decisionHtml}</td>
-    `;
-
-    // Yangi qatordan tepaga qo'shamiz
-    txTableBody.prepend(tr);
+  let decisionHtml = "";
+  if (result.decision === "ALLOW") {
+    decisionHtml = '<span class="flag-pill flag-clean">Ruxsat berildi</span>';
+  } else if (result.decision === "CHALLENGE") {
+    decisionHtml = '<span class="flag-pill">3DS / OTP talab qilinadi</span>';
+  } else {
+    decisionHtml = '<span class="flag-pill flag-phishing">Bloklandi (phishing)</span>';
   }
+
+  tr.innerHTML = `
+    <td>${timeStr}</td>
+    <td>${tx.cardMasked}</td>
+    <td>${tx.merchant.name}</td>
+    <td>${formatAmount(tx.amount)} so‘m</td>
+    <td>${tx.channel}</td>
+    <td>${tx.deviceType}</td>
+    <td>${tx.city} (${tx.country})</td>
+    <td class="${riskClass}">${result.riskLevel}</td>
+    <td>${decisionHtml}</td>
+  `;
+
+  txTableBody.prepend(tr);
+}
 
   simulateBtn?.addEventListener("click", () => {
     const tx = generateRandomTransaction();
@@ -1301,6 +1312,7 @@ Bu skorlar ML modelga qo‘shimcha signal bo‘lib kiradi va xavf darajasini kuc
 </script>
 </body>
 </html>
+
 
 
 
