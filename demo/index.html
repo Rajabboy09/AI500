@@ -521,49 +521,48 @@
     <div><a href="../">← Asosiy sahifaga qaytish</a></div>
   </footer>
 </div>
-
 <script>
   // 🔧 Backend API URL'ini shu yerda moslashtirasiz
-  const API_BASE = 'https://ai500-api.azurewebsites.net'; // masalan: https://apd-backend.onrender.com
+  const API_BASE = "https://ai500-api.azurewebsites.net/"
 
-  // personal_profile.csv asosida demo customerlar
+  // personal_profile.csv asosida demo userlar
   const customers = [
     {
-      id: "1",
-      label: "Customer 1",
+      id: 1,
+      label: "User 1",
       n_txn: 95,
-      avg_amount: 564270.3644912499,
-      median_amount: 428912.9649188205,
+      avg_amount: 560000,
+      median_amount: 428000,
       home_cities: "Nukus|Fergana|Samarkand",
       main_devices: "iPhone|Android|Windows-PC",
       segment: "High-volume user"
     },
     {
-      id: "2",
-      label: "Customer 2",
+      id: 2,
+      label: "User 2",
       n_txn: 115,
-      avg_amount: 465568.70979364,
-      median_amount: 451119.67757664097,
+      avg_amount: 465500,
+      median_amount: 451100,
       home_cities: "Fergana|Andijan|Namangan",
       main_devices: "iPhone|Android|Windows-PC",
       segment: "Stable mid-range"
     },
     {
-      id: "3",
-      label: "Customer 3",
+      id: 3,
+      label: "User 3",
       n_txn: 98,
-      avg_amount: 410314.8093238202,
-      median_amount: 315497.1661488553,
+      avg_amount: 410300,
+      median_amount: 315400,
       home_cities: "Fergana|Namangan|Nukus",
       main_devices: "Android|iPhone|Windows-PC",
       segment: "Mixed behavior"
     },
     {
-      id: "4",
-      label: "Customer 4",
+      id: 4,
+      label: "User 4",
       n_txn: 99,
-      avg_amount: 736342.7363907557,
-      median_amount: 545879.6808687795,
+      avg_amount: 736300,
+      median_amount: 545800,
       home_cities: "Bukhara|Tashkent|Namangan",
       main_devices: "Android|Windows-PC|iPhone",
       segment: "High-value, volatile"
@@ -573,13 +572,13 @@
   const customerTableBody = document.getElementById("customerTableBody");
   const selectedCustomerInput = document.getElementById("selectedCustomerInput");
   const formError = document.getElementById("formError");
-  let selectedCustomerId = null;
+  let selectedUserId = null;  // user_id
 
   function renderCustomers() {
     customers.forEach((c) => {
       const tr = document.createElement("tr");
       tr.classList.add("customer-row");
-      tr.dataset.id = c.id;
+      tr.dataset.id = String(c.id);
 
       const mainCity = c.home_cities.split("|")[0];
       const mainDevice = c.main_devices.split("|")[0];
@@ -612,11 +611,11 @@
   }
 
   function selectCustomer(id) {
-    selectedCustomerId = id;
+    selectedUserId = id;
     selectedCustomerInput.value = id;
     formError.textContent = "";
     document.querySelectorAll(".customer-row").forEach((row) => {
-      row.classList.toggle("selected", row.dataset.id === id);
+      row.classList.toggle("selected", Number(row.dataset.id) === id);
     });
   }
 
@@ -648,40 +647,15 @@
   }
 
   function randomIp() {
-    // Demo uchun ichki IPga o'xshash narsa
     return `10.${randomInt(0,255)}.${randomInt(0,255)}.${randomInt(0,255)}`;
   }
 
-  function randomMerchantId() {
-    return "MERCH_" + String(randomInt(0, 9999)).padStart(4, "0");
-  }
-
-  function randomCounterpartyId() {
-    return "ACC_" + String(randomInt(0, 99999)).padStart(5, "0");
-  }
-
-  async function callScoringApi(tx) {
+  // 🔥 API-ga aynan UserInput strukturasi bo'yicha yuboramiz
+  async function callScoringApi(userPayload) {
     const res = await fetch(`${API_BASE}/api/score`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        transaction_id: tx.transaction_id,
-        customer_id: tx.customer_id,
-        timestamp: tx.timestamp.toISOString(),
-        day_of_week: tx.day_of_week,   // agar backendning o'zi hisoblamoqchi bo'lsa, bu maydonni olib tashlashingiz mumkin
-        hour_of_day: tx.hour_of_day,
-        amount: tx.amount,
-        currency: tx.currency,
-        category: tx.category,
-        channel: tx.channel,
-        city: tx.city,
-        country: tx.country,
-        device_type: tx.device_type,
-        ip_address: tx.ip_address,
-        merchant_id: tx.merchant_id,
-        counterparty_id: tx.counterparty_id,
-        is_recurring: tx.is_recurring
-      }),
+      body: JSON.stringify(userPayload),
     });
 
     if (!res.ok) {
@@ -697,7 +671,6 @@
   const citySelect = document.getElementById("citySelect");
   const countrySelect = document.getElementById("countrySelect");
   const deviceSelect = document.getElementById("deviceSelect");
-  const isRecurringCheckbox = document.getElementById("isRecurringCheckbox");
 
   const allowTableBody = document.getElementById("allowTableBody");
   const challengeTableBody = document.getElementById("challengeTableBody");
@@ -707,8 +680,8 @@
     e.preventDefault();
     formError.textContent = "";
 
-    if (!selectedCustomerId) {
-      formError.textContent = "Avval yuqoridagi jadvaldan customer_id tanlang.";
+    if (selectedUserId === null) {
+      formError.textContent = "Avval yuqoridagi jadvaldan user_id tanlang.";
       return;
     }
     const amountVal = Number(amountInput.value);
@@ -718,31 +691,34 @@
     }
 
     const now = new Date();
-    const dayOfWeek = now.getDay(); // 0-6 (yakshanba=0), train datasetga moslashtirishni backendda ham qilsa bo'ladi
-    const hourOfDay = now.getHours();
+    const dayOfWeek = now.getDay();   // 0–6
+    const hourOfDay = now.getHours(); // 0–23
 
-    const tx = {
-      transaction_id: generateTxnId(),
-      customer_id: selectedCustomerId,
-      timestamp: now,
+    // APIga ketadigan strukturamiz: UserInput
+    const userPayload = {
+      user_id: selectedUserId,
+      ip: randomIp(),
       day_of_week: dayOfWeek,
       hour_of_day: hourOfDay,
       amount: amountVal,
-      currency: "UZS",
       category: categorySelect.value,
       channel: channelSelect.value,
       city: citySelect.value,
       country: countrySelect.value,
-      device_type: deviceSelect.value,
-      ip_address: randomIp(),
-      merchant_id: randomMerchantId(),
-      counterparty_id: randomCounterpartyId(),
-      is_recurring: isRecurringCheckbox.checked ? 1 : 0
+      device: deviceSelect.value
+    };
+
+    // Jadvalga chizish uchun qo'shimcha: transaction_id, vaqt
+    const txMeta = {
+      transaction_id: generateTxnId(),
+      user_id: selectedUserId,
+      timestamp: now,
+      amount: amountVal
     };
 
     try {
       formError.textContent = "Modelga so‘rov yuborilmoqda...";
-      const apiResult = await callScoringApi(tx);
+      const apiResult = await callScoringApi(userPayload);
       formError.textContent = "";
 
       const result = {
@@ -752,7 +728,7 @@
         reason: apiResult.reason ?? ""
       };
 
-      addToResultTables(tx, result);
+      addToResultTables(txMeta, result);
     } catch (err) {
       console.error(err);
       formError.textContent = "API bilan bog'lanib bo'lmadi. Backend URL va CORS sozlamalarini tekshiring.";
@@ -781,7 +757,7 @@
     const tr = document.createElement("tr");
     tr.innerHTML = `
       <td>${tx.transaction_id}</td>
-      <td>${tx.customer_id}</td>
+      <td>${tx.user_id}</td>
       <td>${timeStr}</td>
       <td>${amountStr}</td>
       <td>${riskStr}</td>
