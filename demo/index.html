@@ -652,7 +652,7 @@
 
   // 🔥 API-ga aynan UserInput strukturasi bo'yicha yuboramiz
   async function callScoringApi(userPayload) {
-    const res = await fetch(`${API_BASE}/api/score`, {
+    const res = await fetch(API_BASE, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(userPayload),
