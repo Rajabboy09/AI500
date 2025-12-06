@@ -103,7 +103,7 @@
     .hero-subtitle {
       font-size: 15px;
       color: var(--muted);
-      max-width: 700px;
+      max-width: 720px;
       line-height: 1.6;
       margin-bottom: 12px;
     }
@@ -111,15 +111,6 @@
       font-size: 12px;
       color: var(--muted);
       margin-bottom: 20px;
-    }
-
-    .layout {
-      display: grid;
-      grid-template-columns: minmax(0, 1.4fr) minmax(0, 1.6fr);
-      gap: 20px;
-    }
-    @media (max-width: 950px) {
-      .layout { grid-template-columns: minmax(0, 1fr); }
     }
 
     .card {
@@ -130,6 +121,7 @@
       box-shadow: 0 18px 40px rgba(15, 23, 42, 0.9);
       font-size: 13px;
       color: var(--muted);
+      margin-bottom: 16px;
     }
     .card-header {
       display: flex;
@@ -167,6 +159,7 @@
     th, td {
       padding: 6px 6px;
       text-align: left;
+      vertical-align: top;
     }
     th {
       font-weight: 500;
@@ -190,8 +183,9 @@
     }
 
     .customer-row.selected {
-      background: rgba(34, 197, 94, 0.1);
+      background: rgba(34, 197, 94, 0.08);
     }
+
     .btn {
       border-radius: 999px;
       border: none;
@@ -221,11 +215,15 @@
 
     .form-grid {
       display: grid;
-      grid-template-columns: minmax(0, 1fr);
+      grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 8px;
       margin-top: 8px;
       margin-bottom: 10px;
     }
+    @media (max-width: 700px) {
+      .form-grid { grid-template-columns: minmax(0, 1fr); }
+    }
+
     .field {
       display: flex;
       flex-direction: column;
@@ -259,34 +257,6 @@
     .risk-medium { color: #facc15; }
     .risk-high { color: var(--danger); font-weight: 600; }
 
-    .flag-pill {
-      padding: 2px 6px;
-      border-radius: 999px;
-      font-size: 10px;
-      border: 1px solid rgba(248, 250, 252, 0.12);
-      white-space: nowrap;
-    }
-    .flag-phishing {
-      border-color: rgba(248, 113, 113, 0.6);
-      color: var(--danger);
-      background: rgba(127, 29, 29, 0.4);
-    }
-    .flag-clean {
-      border-color: rgba(34, 197, 94, 0.6);
-      color: var(--accent);
-      background: rgba(22, 101, 52, 0.4);
-    }
-
-    .result-grid {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 12px;
-      margin-top: 16px;
-    }
-    @media (max-width: 950px) {
-      .result-grid { grid-template-columns: minmax(0, 1fr); }
-    }
-
     footer {
       margin-top: 24px;
       font-size: 11px;
@@ -309,194 +279,194 @@
     </div>
     <nav class="nav">
       <a href="../">Asosiy sahifa</a>
-      <a href="#customers">Foydalanuvchilar</a>
+      <a href="#customers">Customerlar</a>
       <a href="#form">To‘lov formasi</a>
-      <a href="#results">Natijalar</a>
+      <a href="#results-allow">Natijalar</a>
     </nav>
     <div class="pill">/demo · Interaktiv</div>
   </header>
 
   <section>
     <div class="hero-title">
-      <span>Interaktiv demo:</span> Hakam sifatida tranzaksiyani sinab ko‘ring
+      <span>Interaktiv demo:</span> tranzaksiyani model orqali skoring qiling
     </div>
     <p class="hero-subtitle">
-      Bu sahifada siz model biladigan foydalanuvchilardan birini tanlab, to‘lov joyi (merchant/domain)
-      va summani kiritishingiz mumkin. APD har bir tranzaksiyani baholab,
-      natijani uchta jadvaldan biriga yuboradi: <strong>Phishingga o‘xshash</strong>,
-      <strong>Qo‘shimcha tasdiq</strong> yoki <strong>Bloklangan</strong>.
+      Bu sahifada siz <strong>personal profile</strong> mavjud bo‘lgan customerlardan birini tanlab,
+      merchant va summani kiritasiz. APD modeli API orqali riskni hisoblaydi
+      va tranzaksiyani <strong>Ruxsat</strong>, <strong>Qo‘shimcha tasdiq</strong> yoki
+      <strong>Blok</strong> jadvallaridan biriga joylashtiradi.
     </p>
     <p class="hero-note">
-      🔎 Hakamlar uchun: bu yerda ishlayotgan “model” – real antifraud logikaga yaqinlashgan
-      rule-based pseudo-ML bo‘lib, merchant nomi, summasi, kanal, qurilma va foydalanuvchi statusiga qarab
-      risk ballini hisoblaydi.
+      🔎 Hakamlar uchun: frontend hech qanday riskni hisoblamaydi – barcha skoring
+      <strong>backenddagi train qilingan model</strong> orqali amalga oshadi.
+      JavaScript faqat API’ga so‘rov yuboradi va javobni vizual ko‘rsatadi.
     </p>
   </section>
 
-  <section class="layout">
-    <!-- CHAP TOMON: CUSTOMERS + FORM -->
-    <article class="card" id="customers">
-      <div class="card-header">
-        <div>
-          <div class="card-label">1-qadam</div>
-          <div class="card-title">Model biladigan foydalanuvchilar (customer ID)</div>
-        </div>
-        <div class="card-tag">Select user</div>
+  <!-- 1. CUSTOMERLAR JADVALI -->
+  <section class="card" id="customers">
+    <div class="card-header">
+      <div>
+        <div class="card-label">1-qadam</div>
+        <div class="card-title">Customer’ni tanlang (personal profil asosida)</div>
       </div>
-      <p style="font-size:12px; margin-bottom:8px;">
-        Avval quyidagi jadvaldan biror foydalanuvchini tanlang. Model har birining o‘ziga xos
-        odatlarini biladi (trusted / yangi / riskli).
-      </p>
-      <div class="table-wrapper">
-        <table>
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Ism / segment</th>
-              <th>Status</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody id="customerTableBody">
-            <!-- JS orqali to‘ldiriladi -->
-          </tbody>
-        </table>
+      <div class="card-tag">Personal profile.csv</div>
+    </div>
+    <p style="font-size:12px; margin-bottom:8px;">
+      Quyidagi jadval – <strong>4 ta demo customer</strong> bo‘yicha personal profil:
+      tranzaksiyalar soni, o‘rtacha summa, odatiy shaharlar va qurilmalar.
+      Model skoring vaqtida shu profildan foydalanadi.
+    </p>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>customer_id</th>
+            <th>Segment</th>
+            <th>Tranzaksiya profili</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="customerTableBody">
+          <!-- JS orqali to‘ldiriladi -->
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- 2. TO'LOV FORMASI -->
+  <section class="card" id="form">
+    <div class="card-header">
+      <div>
+        <div class="card-label">2-qadam</div>
+        <div class="card-title">Tanlangan customer uchun tranzaksiyani yuborish</div>
       </div>
+    </div>
 
-      <div id="form" style="margin-top:14px;">
-        <div class="card-header">
-          <div>
-            <div class="card-label">2-qadam</div>
-            <div class="card-title">Tanlangan foydalanuvchi uchun to‘lov kiritish</div>
-          </div>
+    <form id="paymentForm">
+      <div class="form-grid">
+        <div class="field">
+          <label>Tanlangan customer_id</label>
+          <input id="selectedCustomerInput" type="text" placeholder="Avval jadvaldan tanlang" readonly />
         </div>
-
-        <form id="paymentForm">
-          <div class="form-grid">
-            <div class="field">
-              <label>Tanlangan customer ID</label>
-              <input id="selectedCustomerInput" type="text" placeholder="Avval jadvaldan tanlang" readonly />
-            </div>
-            <div class="field">
-              <label>To‘lov joyi / merchant yoki domen</label>
-              <input id="merchantInput" type="text" placeholder="masalan: xbet-android-apk.com" />
-            </div>
-            <div class="field">
-              <label>Summa (so‘m)</label>
-              <input id="amountInput" type="number" min="1000" step="1000" placeholder="masalan: 3500000" />
-            </div>
-            <div class="field">
-              <label>Kanal</label>
-              <select id="channelSelect">
-                <option value="MOBILE_APP">MOBILE_APP</option>
-                <option value="WEB">WEB</option>
-                <option value="POS">POS</option>
-              </select>
-            </div>
-            <div class="field">
-              <label>Qurilma turi</label>
-              <select id="deviceSelect">
-                <option value="Android">Android</option>
-                <option value="iOS">iOS</option>
-                <option value="Web">Web</option>
-                <option value="Unknown">Unknown</option>
-              </select>
-            </div>
-          </div>
-
-          <button type="submit" class="btn btn-primary">
-            Tranzaksiyani baholash ▶
-          </button>
-          <span id="formError" class="hint" style="color:#f97373;"></span>
-          <div class="hint">
-            Model natijasi pastda jadvalga qo‘shiladi – biror narsa bloklansa yoki qo‘shimcha tasdiq
-            so‘ralsa uni aniq ko‘rasiz.
-          </div>
-        </form>
-      </div>
-    </article>
-
-    <!-- O'N TOMON: NATIJALAR -->
-    <article class="card" id="results">
-      <div class="card-header">
-        <div>
-          <div class="card-label">3-qadam</div>
-          <div class="card-title">Model qarorlari – natijalar jadvali</div>
+        <div class="field">
+          <label>Merchant / domen nomi</label>
+          <input id="merchantInput" type="text" placeholder="masalan: xbet-android-apk.com" />
         </div>
-        <div class="card-tag">Allow / Challenge / Block</div>
-      </div>
-      <p style="font-size:12px;">
-        Har bir yuborilgan tranzaksiya risk balliga qarab uchta toifadan biriga tushadi:
-        <span class="risk-high">Phishingga o‘xshash (High risk)</span>, 
-        <span class="risk-medium">Qo‘shimcha tasdiq (Medium)</span> yoki 
-        <span class="risk-low">Ruxsat berilgan (Low)</span>.
-      </p>
-
-      <div class="result-grid">
-        <!-- Jadval 1: Phishingga o‘xshash / yuqori risk -->
-        <div>
-          <h4 style="font-size:12px; margin:6px 0;">1-jadval: Phishingga o‘xshash tranzaksiyalar (AI High risk)</h4>
-          <div class="table-wrapper">
-            <table>
-              <thead>
-                <tr>
-                  <th>Vaqt</th>
-                  <th>Customer</th>
-                  <th>Merchant</th>
-                  <th>Summa</th>
-                  <th>Risk</th>
-                </tr>
-              </thead>
-              <tbody id="phishingTableBody">
-                <!-- JS -->
-              </tbody>
-            </table>
-          </div>
+        <div class="field">
+          <label>Summa (so‘m)</label>
+          <input id="amountInput" type="number" min="1000" step="1000" placeholder="masalan: 3500000" />
         </div>
-
-        <!-- Jadval 2: Qo'shimcha tasdiq -->
-        <div>
-          <h4 style="font-size:12px; margin:6px 0;">2-jadval: Qo‘shimcha tasdiq talab qilingan (3DS / OTP)</h4>
-          <div class="table-wrapper">
-            <table>
-              <thead>
-                <tr>
-                  <th>Vaqt</th>
-                  <th>Customer</th>
-                  <th>Merchant</th>
-                  <th>Summa</th>
-                  <th>Risk</th>
-                </tr>
-              </thead>
-              <tbody id="challengeTableBody">
-                <!-- JS -->
-              </tbody>
-            </table>
-          </div>
+        <div class="field">
+          <label>Kanal</label>
+          <select id="channelSelect">
+            <option value="MOBILE_APP">MOBILE_APP</option>
+            <option value="WEB">WEB</option>
+            <option value="POS">POS</option>
+          </select>
         </div>
-
-        <!-- Jadval 3: Bloklangan tranzaksiyalar -->
-        <div>
-          <h4 style="font-size:12px; margin:6px 0;">3-jadval: Bloklangan tranzaksiyalar</h4>
-          <div class="table-wrapper">
-            <table>
-              <thead>
-                <tr>
-                  <th>Vaqt</th>
-                  <th>Customer</th>
-                  <th>Merchant</th>
-                  <th>Summa</th>
-                  <th>Qaror</th>
-                </tr>
-              </thead>
-              <tbody id="blockedTableBody">
-                <!-- JS -->
-              </tbody>
-            </table>
-          </div>
+        <div class="field">
+          <label>Qurilma turi</label>
+          <select id="deviceSelect">
+            <option value="Android">Android</option>
+            <option value="iOS">iOS</option>
+            <option value="Web">Web</option>
+            <option value="Unknown">Unknown</option>
+          </select>
         </div>
       </div>
-    </article>
+
+      <button type="submit" class="btn btn-primary">
+        Tranzaksiyani modelga yuborish ▶
+      </button>
+      <span id="formError" class="hint" style="color:#f97373;"></span>
+      <div class="hint">
+        API: <code>POST /api/score</code> – javobda <code>risk_score</code>, <code>risk_level</code>,
+        <code>decision</code> va <code>reason</code> qaytadi. Quyidagi jadvallar shuni aks ettiradi.
+      </div>
+    </form>
+  </section>
+
+  <!-- 3. NATIJALAR – HAR BIR JADVAL BUTUN KENGDA USTMA-UST -->
+  <section id="results-allow" class="card">
+    <div class="card-header">
+      <div>
+        <div class="card-label">3-qadam</div>
+        <div class="card-title">Ruxsat berilgan tranzaksiyalar (ALLOW / Low risk)</div>
+      </div>
+    </div>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>transaction_id</th>
+            <th>customer_id</th>
+            <th>Vaqt</th>
+            <th>Summa</th>
+            <th>risk_score</th>
+            <th>Qaror</th>
+            <th>Sabablari</th>
+          </tr>
+        </thead>
+        <tbody id="allowTableBody">
+          <!-- JS -->
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="results-challenge" class="card">
+    <div class="card-header">
+      <div>
+        <div class="card-label">3-qadam</div>
+        <div class="card-title">Qo‘shimcha tasdiq talab qilingan tranzaksiyalar (CHALLENGE / Medium)</div>
+      </div>
+    </div>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>transaction_id</th>
+            <th>customer_id</th>
+            <th>Vaqt</th>
+            <th>Summa</th>
+            <th>risk_score</th>
+            <th>Qaror</th>
+            <th>Sabablari</th>
+          </tr>
+        </thead>
+        <tbody id="challengeTableBody">
+          <!-- JS -->
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="results-block" class="card">
+    <div class="card-header">
+      <div>
+        <div class="card-label">3-qadam</div>
+        <div class="card-title">Bloklangan tranzaksiyalar (BLOCK / High risk)</div>
+      </div>
+    </div>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>transaction_id</th>
+            <th>customer_id</th>
+            <th>Vaqt</th>
+            <th>Summa</th>
+            <th>risk_score</th>
+            <th>Qaror</th>
+            <th>Sabablari</th>
+          </tr>
+        </thead>
+        <tbody id="blockTableBody">
+          <!-- JS -->
+        </tbody>
+      </table>
+    </div>
   </section>
 
   <footer>
@@ -506,39 +476,50 @@
 </div>
 
 <script>
-  // Demo ma'lumotlar: model biladigan customer'lar
+  // ❗ API URL'ni o'zingizning backend manzilingizga moslashtiring
+  const API_BASE = "https://your-backend-host"; // masalan: https://apd-backend.onrender.com
+
+  // Personal_profile.csv asosida 4 ta demo customer
   const customers = [
     {
-      id: "CUST-101",
-      name: "Olimjon",
-      segment: "Trusted user",
-      status: "3 yillik mijoz · odatiy to'lovlar",
-      isNew: false,
-      riskBias: -0.05
+      id: "1",
+      label: "Customer 1",
+      n_txn: 95,
+      avg_amount: 564270.3644912499,
+      median_amount: 428912.9649188205,
+      home_cities: "Nukus|Fergana|Samarkand",
+      main_devices: "iPhone|Android|Windows-PC",
+      segment: "High-volume user"
     },
     {
-      id: "CUST-202",
-      name: "Dilnoza",
-      segment: "New user",
-      status: "Yangi kartaga ega bo'lgan foydalanuvchi (cold-start)",
-      isNew: true,
-      riskBias: 0.15
+      id: "2",
+      label: "Customer 2",
+      n_txn: 115,
+      avg_amount: 465568.70979364,
+      median_amount: 451119.67757664097,
+      home_cities: "Fergana|Andijan|Namangan",
+      main_devices: "iPhone|Android|Windows-PC",
+      segment: "Stable mid-range"
     },
     {
-      id: "CUST-303",
-      name: "Javlon",
-      segment: "Risky pattern",
-      status: "Oldin g'alati tranzaksiyalar bo'lgan · monitoringda",
-      isNew: false,
-      riskBias: 0.25
+      id: "3",
+      label: "Customer 3",
+      n_txn: 98,
+      avg_amount: 410314.8093238202,
+      median_amount: 315497.1661488553,
+      home_cities: "Fergana|Namangan|Nukus",
+      main_devices: "Android|iPhone|Windows-PC",
+      segment: "Mixed behavior"
     },
     {
-      id: "CUST-404",
-      name: "Anonim",
-      segment: "Normal user",
-      status: "Hech qanday maxsus belgi yo'q",
-      isNew: false,
-      riskBias: 0
+      id: "4",
+      label: "Customer 4",
+      n_txn: 99,
+      avg_amount: 736342.7363907557,
+      median_amount: 545879.6808687795,
+      home_cities: "Bukhara|Tashkent|Namangan",
+      main_devices: "Android|Windows-PC|iPhone",
+      segment: "High-value, volatile"
     }
   ];
 
@@ -553,11 +534,26 @@
       tr.classList.add("customer-row");
       tr.dataset.id = c.id;
 
+      const mainCity = c.home_cities.split("|")[0];
+      const mainDevice = c.main_devices.split("|")[0];
+
       tr.innerHTML = `
         <td>${c.id}</td>
-        <td>${c.name}<br><span style="font-size:10px; color:#9ca3af;">${c.segment}</span></td>
-        <td style="font-size:10px;">${c.status}</td>
-        <td><button type="button" class="btn btn-ghost" style="padding:4px 8px; font-size:10px;">Tanlash</button></td>
+        <td>
+          ${c.label}<br>
+          <span style="font-size:10px; color:#9ca3af;">
+            ${c.segment}
+          </span>
+        </td>
+        <td style="font-size:10px;">
+          ${c.n_txn} ta tranzaksiya · Ø ${Math.round(c.avg_amount).toLocaleString("ru-RU")} so‘m<br>
+          Asosiy shahar: ${mainCity}, qurilma: ${mainDevice}
+        </td>
+        <td>
+          <button type="button" class="btn btn-ghost" style="padding:4px 8px; font-size:10px;">
+            Tanlash
+          </button>
+        </td>
       `;
 
       tr.querySelector("button").addEventListener("click", () => {
@@ -572,14 +568,9 @@
     selectedCustomerId = id;
     selectedCustomerInput.value = id;
     formError.textContent = "";
-
     document.querySelectorAll(".customer-row").forEach((row) => {
       row.classList.toggle("selected", row.dataset.id === id);
     });
-  }
-
-  function randomInt(min, max) {
-    return Math.floor(Math.random() * (max - min + 1)) + min;
   }
 
   function formatTime(d) {
@@ -596,64 +587,32 @@
     return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
   }
 
-  // Pseudo-ML skoring: merchant + amount + channel + device + customer segment
-  function scoreTransaction(tx) {
-    let score = 0.0;
-
-    const m = tx.merchant.toLowerCase();
-
-    // Merchant/domen risklari
-    if (m.includes("xbet") || m.includes("casino") || m.includes("bet")) {
-      score += 0.6;
-    } else if (m.includes("apk") || m.includes("telegram") || m.includes(".apk")) {
-      score += 0.45;
-    } else if (m.includes("market") || m.includes("store") || m.includes("shop")) {
-      score += 0.15;
-    } else if (m.includes("click") || m.includes("payme") || m.includes("uzcard")) {
-      score += 0.1;
-    } else {
-      score += 0.2;
+  function generateTxnId() {
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    let out = "TXN-";
+    for (let i = 0; i < 8; i++) {
+      out += chars.charAt(Math.floor(Math.random() * chars.length));
     }
+    return out;
+  }
 
-    // Summaga qarab
-    if (tx.amount > 3_000_000) score += 0.25;
-    else if (tx.amount > 1_000_000) score += 0.15;
-    else if (tx.amount < 100_000) score -= 0.05;
+  async function callScoringApi(tx) {
+    const res = await fetch(`${API_BASE}/api/score`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        customer_id: tx.customerId,
+        merchant: tx.merchant,
+        amount: tx.amount,
+        channel: tx.channel,
+        device_type: tx.device_type
+      }),
+    });
 
-    // Kanal
-    if (tx.channel === "WEB") score += 0.1;
-    if (tx.channel === "POS") score -= 0.05;
-
-    // Qurilma
-    if (tx.device === "Unknown") score += 0.1;
-    if (tx.device === "Web") score += 0.05;
-
-    // Yangi foydalanuvchi / riskli segment
-    const customer = customers.find((c) => c.id === tx.customerId);
-    if (customer) {
-      score += customer.riskBias;
+    if (!res.ok) {
+      throw new Error("API xatosi: " + res.status);
     }
-
-    // Kichik random shovqin (har safar biroz farq bo'lishi uchun)
-    score += (Math.random() - 0.5) * 0.05;
-
-    // 0–1 oralig'iga cheklaymiz
-    score = Math.max(0, Math.min(1, score));
-
-    let riskLevel, decision;
-
-    if (score < 0.35) {
-      riskLevel = "Low";
-      decision = "ALLOW";
-    } else if (score < 0.7) {
-      riskLevel = "Medium";
-      decision = "CHALLENGE";
-    } else {
-      riskLevel = "High";
-      decision = "BLOCK";
-    }
-
-    return { riskScore: score, riskLevel, decision };
+    return await res.json();
   }
 
   const paymentForm = document.getElementById("paymentForm");
@@ -662,16 +621,16 @@
   const channelSelect = document.getElementById("channelSelect");
   const deviceSelect = document.getElementById("deviceSelect");
 
-  const phishingTableBody = document.getElementById("phishingTableBody");
+  const allowTableBody = document.getElementById("allowTableBody");
   const challengeTableBody = document.getElementById("challengeTableBody");
-  const blockedTableBody = document.getElementById("blockedTableBody");
+  const blockTableBody = document.getElementById("blockTableBody");
 
-  paymentForm.addEventListener("submit", (e) => {
+  paymentForm.addEventListener("submit", async (e) => {
     e.preventDefault();
     formError.textContent = "";
 
     if (!selectedCustomerId) {
-      formError.textContent = "Avval customer jadvalidan foydalanuvchini tanlang.";
+      formError.textContent = "Avval yuqoridagi jadvaldan customer_id tanlang.";
       return;
     }
     const merchant = merchantInput.value.trim();
@@ -685,77 +644,72 @@
       return;
     }
 
+    const now = new Date();
     const tx = {
+      transaction_id: generateTxnId(),
       customerId: selectedCustomerId,
       merchant,
       amount: amountVal,
       channel: channelSelect.value,
-      device: deviceSelect.value,
-      timestamp: new Date()
+      device_type: deviceSelect.value,
+      timestamp: now
     };
 
-    const result = scoreTransaction(tx);
-    addToTables(tx, result);
+    try {
+      formError.textContent = "Modelga so‘rov yuborilmoqda...";
+      const apiResult = await callScoringApi(tx);
+      formError.textContent = "";
+
+      const result = {
+        riskScore: apiResult.risk_score ?? apiResult.risk ?? 0,
+        riskLevel: apiResult.risk_level ?? "",
+        decision: apiResult.decision ?? "",
+        reason: apiResult.reason ?? ""
+      };
+
+      addToResultTables(tx, result);
+    } catch (err) {
+      console.error(err);
+      formError.textContent = "API bilan bog'lanib bo'lmadi. Backend URL ni tekshiring.";
+    }
 
     merchantInput.value = "";
     amountInput.value = "";
   });
 
-  function addToTables(tx, result) {
+  function addToResultTables(tx, result) {
     const timeStr = formatTime(tx.timestamp);
     const amountStr = formatAmount(tx.amount) + " so‘m";
+    const riskStr = (result.riskScore ?? 0).toFixed(3);
 
-    if (result.riskLevel === "High") {
-      // 1-jadval: phishingga o'xshash (High risk)
-      const tr = document.createElement("tr");
-      tr.innerHTML = `
-        <td>${timeStr}</td>
-        <td>${tx.customerId}</td>
-        <td>${tx.merchant}</td>
-        <td>${amountStr}</td>
-        <td class="risk-high">High</td>
-      `;
-      phishingTableBody.prepend(tr);
+    // Qarorni o'zbekcha matnga aylantiramiz
+    let decisionText = result.decision;
+    if (decisionText === "ALLOW") decisionText = "Ruxsat berildi";
+    else if (decisionText === "CHALLENGE") decisionText = "Qo‘shimcha tasdiq talab qilindi";
+    else if (decisionText === "BLOCK") decisionText = "Bloklandi (phishing)";
 
-      // 3-jadvalga ham BLOCK sifatida yozamiz
-      const trBlock = document.createElement("tr");
-      trBlock.innerHTML = `
-        <td>${timeStr}</td>
-        <td>${tx.customerId}</td>
-        <td>${tx.merchant}</td>
-        <td>${amountStr}</td>
-        <td><span class="flag-pill flag-phishing">Bloklandi (phishing)</span></td>
-      `;
-      blockedTableBody.prepend(trBlock);
-
-    } else if (result.riskLevel === "Medium") {
-      // 2-jadval: qo'shimcha tasdiq
-      const tr = document.createElement("tr");
-      tr.innerHTML = `
-        <td>${timeStr}</td>
-        <td>${tx.customerId}</td>
-        <td>${tx.merchant}</td>
-        <td>${amountStr}</td>
-        <td class="risk-medium">Medium</td>
-      `;
-      challengeTableBody.prepend(tr);
-
-    } else {
-      // Low risk bo'lsa – ruxsat berilgan, lekin bu demo'da alohida jadvalga emas,
-      // 3-jadvalga "Ruxsat berildi" sifatida yozamiz (blokk bilan solishtirish uchun).
-      const trBlock = document.createElement("tr");
-      trBlock.innerHTML = `
-        <td>${timeStr}</td>
-        <td>${tx.customerId}</td>
-        <td>${tx.merchant}</td>
-        <td>${amountStr}</td>
-        <td><span class="flag-pill flag-clean">Ruxsat berildi</span></td>
-      `;
-      blockedTableBody.prepend(trBlock);
+    // qaysi jadvalga tushishini risk_level / decision bo'yicha tanlaymiz
+    let targetBody = allowTableBody;
+    if (result.decision === "CHALLENGE" || result.riskLevel === "Medium") {
+      targetBody = challengeTableBody;
+    } else if (result.decision === "BLOCK" || result.riskLevel === "High") {
+      targetBody = blockTableBody;
     }
+
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${tx.transaction_id}</td>
+      <td>${tx.customerId}</td>
+      <td>${timeStr}</td>
+      <td>${amountStr}</td>
+      <td>${riskStr}</td>
+      <td>${decisionText}</td>
+      <td style="max-width:260px;">${result.reason}</td>
+    `;
+    targetBody.prepend(tr);
   }
 
-  // Boshlang'ich render
+  // Boshlang'ich customer jadvalini chizamiz
   renderCustomers();
 </script>
 </body>
