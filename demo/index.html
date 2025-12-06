@@ -716,56 +716,67 @@
       amount: amountVal
     };
 
-    try {
-      formError.textContent = "Modelga so‘rov yuborilmoqda...";
-      const apiResult = await callScoringApi(userPayload);
-      formError.textContent = "";
+   try {
+  formError.textContent = "Modelga so‘rov yuborilmoqda...";
+  const apiResult = await callScoringApi(userPayload);
+  formError.textContent = "";
 
-      const result = {
-        riskScore: apiResult.risk_score ?? apiResult.risk ?? 0,
-        riskLevel: apiResult.risk_level ?? "",
-        decision: apiResult.decision ?? "",
-        reason: apiResult.reason ?? ""
-      };
+  // 👉 Backend strukturasiga moslashamiz
+  const output = apiResult.output || apiResult;
 
-      addToResultTables(txMeta, result);
-    } catch (err) {
-      console.error(err);
-      formError.textContent = "API bilan bog'lanib bo'lmadi. Backend URL va CORS sozlamalarini tekshiring.";
-    }
+  const result = {
+    riskScore: output.risk_score ?? 0,
+    action: output.action ?? "",
+    // array bo'lsa join qilamiz, bo'lmasa bitta string
+    reason: Array.isArray(output.reasons)
+      ? output.reasons.join(", ")
+      : (output.reason ?? "")
+  };
+
+  addToResultTables(txMeta, result);
+} catch (err) {
+  console.error(err);
+  formError.textContent = "API bilan bog'lanib bo'lmadi. Backend URL va CORS sozlamalarini tekshiring.";
+}
 
     amountInput.value = "";
   });
 
-  function addToResultTables(tx, result) {
-    const timeStr = formatTime(tx.timestamp);
-    const amountStr = formatAmount(tx.amount) + " so‘m";
-    const riskStr = (result.riskScore ?? 0).toFixed(3);
+function addToResultTables(tx, result) {
+  const timeStr = formatTime(tx.timestamp);
+  const amountStr = formatAmount(tx.amount) + " so‘m";
+  const riskStr = Number(result.riskScore ?? 0).toFixed(3);
 
-    let decisionText = result.decision || "";
-    if (decisionText === "ALLOW") decisionText = "Ruxsat berildi";
-    else if (decisionText === "CHALLENGE") decisionText = "Qo‘shimcha tasdiq talab qilindi";
-    else if (decisionText === "BLOCK") decisionText = "Bloklandi (phishing)";
+  // action -> qaror matni va jadval
+  let decisionText = "";
+  let targetBody = allowTableBody;
 
-    let targetBody = allowTableBody;
-    if (result.decision === "CHALLENGE" || result.riskLevel === "Medium") {
-      targetBody = challengeTableBody;
-    } else if (result.decision === "BLOCK" || result.riskLevel === "High") {
-      targetBody = blockTableBody;
-    }
+  const action = (result.action || "").toLowerCase();
 
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td>${tx.transaction_id}</td>
-      <td>${tx.user_id}</td>
-      <td>${timeStr}</td>
-      <td>${amountStr}</td>
-      <td>${riskStr}</td>
-      <td>${decisionText}</td>
-      <td style="max-width:260px;">${result.reason}</td>
-    `;
-    targetBody.prepend(tr);
+  if (action.includes("ruxsat")) {
+    decisionText = "Ruxsat berildi";
+    targetBody = allowTableBody;
+  } else if (action.includes("tasdiq") || action.includes("verify") || action.includes("check")) {
+    decisionText = "Qo‘shimcha tasdiq talab qilindi";
+    targetBody = challengeTableBody;
+  } else {
+    decisionText = "Bloklandi (phishing)";
+    targetBody = blockTableBody;
   }
+
+  const tr = document.createElement("tr");
+  tr.innerHTML = `
+    <td>${tx.transaction_id}</td>
+    <td>${tx.user_id}</td>
+    <td>${timeStr}</td>
+    <td>${amountStr}</td>
+    <td>${riskStr}</td>
+    <td>${decisionText}</td>
+    <td style="max-width:260px;">${result.reason}</td>
+  `;
+  targetBody.prepend(tr);
+}
+
 
   // Boshlang'ich render
   renderCustomers();
