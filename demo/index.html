@@ -362,12 +362,36 @@
 
 .apd-chat-messages {
   padding: 8px 10px;
+  
+  /* Flexbox sozlamalari */
   flex: 1;
-  max-height: 100%;       
-  overflow-y: auto;       
   display: flex;
   flex-direction: column;
   gap: 6px;
+
+  /* SCROLL SOZLAMALARI: */
+  overflow-y: auto;   /* Sig'magan joyda scroll paydo bo'lsin */
+  min-height: 0;      /* Flexbox ichida toshib ketmaslik uchun muhim! */
+  scroll-behavior: smooth; /* Yumshoq harakatlanish */
+}
+
+/* --- Scrollbar dizayni (chiroyli ko'rinishi uchun) --- */
+/* Chrome, Edge, Safari uchun */
+.apd-chat-messages::-webkit-scrollbar {
+  width: 6px; /* Ingichka scrollbar */
+}
+
+.apd-chat-messages::-webkit-scrollbar-track {
+  background: rgba(15, 23, 42, 0.5); /* Orqa fon */
+}
+
+.apd-chat-messages::-webkit-scrollbar-thumb {
+  background: rgba(34, 197, 94, 0.4); /* Yuradigan tayoqcha rangi (yashil) */
+  border-radius: 4px;
+}
+
+.apd-chat-messages::-webkit-scrollbar-thumb:hover {
+  background: rgba(34, 197, 94, 0.7); /* Sichqoncha borganda to'qroq bo'ladi */
 }
 
 .apd-msg {
