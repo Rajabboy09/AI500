@@ -929,6 +929,35 @@
   renderCustomers();
   
 </script>
+  
+  <!-- APD Chat-bot paneli -->
+<div id="apdChatWidget">
+  <div class="apd-chat-header">
+    <div>
+      <div class="apd-chat-title">APD savol-javob</div>
+      <div class="apd-chat-subtitle">Model va demo haqida savol bering</div>
+    </div>
+    <button id="apdChatToggleBtn" class="apd-chat-toggle">−</button>
+  </div>
+
+  <div id="apdChatBody" class="apd-chat-body">
+    <div id="apdChatMessages" class="apd-chat-messages">
+      <div class="apd-msg apd-msg-bot">
+        Salom! Men APD bo‘yicha yordamchi botman. Demo, risk skoring yoki model qanday ishlashi haqida savol berishingiz mumkin.
+      </div>
+    </div>
+    <form id="apdChatForm" class="apd-chat-input-row">
+      <input
+        id="apdChatInput"
+        type="text"
+        placeholder="Savolingizni yozing..."
+        autocomplete="off"
+      />
+      <button type="submit">Yuborish</button>
+    </form>
+  </div>
+</div>
+
   <script>
   // APD chat bot – /ask endpoint
   const APD_API_BASE = "https://ai500-api.azurewebsites.net";
@@ -1005,34 +1034,6 @@
     apdChatToggleBtn.textContent = isHidden ? "−" : "+";
   });
 </script>
-
-  <!-- APD Chat-bot paneli -->
-<div id="apdChatWidget">
-  <div class="apd-chat-header">
-    <div>
-      <div class="apd-chat-title">APD savol-javob</div>
-      <div class="apd-chat-subtitle">Model va demo haqida savol bering</div>
-    </div>
-    <button id="apdChatToggleBtn" class="apd-chat-toggle">−</button>
-  </div>
-
-  <div id="apdChatBody" class="apd-chat-body">
-    <div id="apdChatMessages" class="apd-chat-messages">
-      <div class="apd-msg apd-msg-bot">
-        Salom! Men APD bo‘yicha yordamchi botman. Demo, risk skoring yoki model qanday ishlashi haqida savol berishingiz mumkin.
-      </div>
-    </div>
-    <form id="apdChatForm" class="apd-chat-input-row">
-      <input
-        id="apdChatInput"
-        type="text"
-        placeholder="Savolingizni yozing..."
-        autocomplete="off"
-      />
-      <button type="submit">Yuborish</button>
-    </form>
-  </div>
-</div>
 
 </body>
 </html>
