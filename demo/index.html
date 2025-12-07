@@ -599,7 +599,7 @@
   <!-- YouTube video -->
   <div class="video-wrapper">
     <iframe
-      src="https://youtu.be/eBQDPd8oDIU
+      src="https://youtube.com/embed/eBQDPd8oDIU
       title="APD demo video"
       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
       allowfullscreen
@@ -611,15 +611,15 @@
     <div class="video-meta-block">
       <h3>Videoda nima ko‘rsatilgan?</h3>
       <p>
-        Videoda APD (AI Phishing Detector) tizimining real vaqt rejimidagi ishlashi ko‘rsatiladi:
+        Videoda APD (AI Phishing Detector) tizimining real vaqt rejimidagi ishlashi ko‘rsatilgan:
         <strong>/demo</strong> sahifasida user tanlash, tranzaksiya parametrlarini kiritish
         (amount, category, channel, city, country, device) va ularni <strong>API orqali modelga yuborish</strong>.
         Modeldan kelgan <code>risk_score</code> va <code>action</code> natijalari
-        Ruxsat / Qo‘shimcha tasdiq / Blok jadvallarida paydo bo‘lishi bosqichma-bosqich namoyish etiladi.
+        Ruxsat / Qo‘shimcha tasdiq / Blok jadvallarida paydo bo‘lishi bosqichma-bosqich namoyish etilgan.
       </p>
       <p>
-        Shuningdek, pastki o‘ngdagi chat-bot orqali hakam APD bo‘yicha savollar berib,
-        tizimga oid tushuntirishlarni AI yordamida olishi ham ko‘rsatiladi.
+        Shuningdek, pastki o‘ngdagi chat-bot orqali APD bo‘yicha savollar berib,
+        tizimga oid tushuntirishlarni AI yordamida olish mumkinligi ham aytib o'tilgan
       </p>
     </div>
 
@@ -628,11 +628,11 @@
       <ul>
         <li>
           <strong>Muammo:</strong> phishing va zararli APKlar orqali kartadagi mablag‘larni o‘g‘irlash,
-          foydalanuvchi odatlariga mos bo‘lmagan tranzaksiyalarni kech aniqlash.
+          foydalanuvchi odatlariga mos bo‘lmagan tranzaksiyalarni aniqlay olmaslik
         </li>
         <li>
-          <strong>Yechim:</strong> foydalanuvchining tranzaksiya tarixi va odatlari asosida
-          <em>personalized risk scoring</em> qiluvchi AI modul – APD.
+          <strong>Yechim:</strong> Tranzaksiya tarixi va foydalanuvchining odatlari asosida
+          <em>global va personalized risk scoring</em> qiluvchi AI modul – APD.
         </li>
         <li>
           <strong>Texnologiyalar:</strong> Backend – Python, FastAPI, scikit-learn; 
@@ -645,8 +645,9 @@
         </li>
         <li>
           <strong>Keyingi qadamlar:</strong> real ma’lumotlar bilan qo‘shimcha train,
-          monitoring va explainability dashboard, merchant/domain reputatsiya skori,
-          mobil SDK (Android/iOS) va pilot integratsiya.
+          monitoring va explainability dashboard, merchant/domain reputatsiya skori, Behavioral biometrics (odatdagi gesture/interaction odatlari, 
+          odatdagi harakat tezligi, odatdagi PIN ritmi, odatdagi navigatsiya yo‘llari) kabilarni aniqlash va serverga uzatishga mo'ljallangan 
+          SDK modullarni to'lov ilovalariga qo'shish va pilot integratsiya.
         </li>
       </ul>
     </div>
