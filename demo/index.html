@@ -268,6 +268,44 @@
       gap: 8px;
       flex-wrap: wrap;
     }
+
+    /* ------- Decision badge styles ------- */
+.decision-pill {
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 500;
+  display: inline-block;
+  text-align: center;
+  white-space: nowrap;
+  border: 1px solid;
+}
+
+/* RUXSAT BERILDI – GREEN */
+.pill-allow {
+  background: rgba(34, 197, 94, 0.15);
+  color: #22c55e;
+  border-color: rgba(34, 197, 94, 0.4);
+  box-shadow: 0 0 8px rgba(34, 197, 94, 0.25);
+}
+
+/* QO‘SHIMCHA TASDIQ – YELLOW */
+.pill-challenge {
+  background: rgba(250, 204, 21, 0.15);
+  color: #facc15;
+  border-color: rgba(250, 204, 21, 0.4);
+  box-shadow: 0 0 8px rgba(250, 204, 21, 0.25);
+}
+
+/* BLOK – RED */
+.pill-block {
+  background: rgba(239, 68, 68, 0.20);
+  color: #ef4444;
+  border-color: rgba(239, 68, 68, 0.45);
+  box-shadow: 0 0 8px rgba(239, 68, 68, 0.25);
+}
+
+    
   </style>
 </head>
 <body>
@@ -739,12 +777,15 @@
 
     if (action.includes("ruxsat")) {
       decisionText = "Ruxsat berildi";
+      decisionBadge = `<span class="decision-pill pill-allow">Ruxsat berildi</span>`;
       targetBody = allowTableBody;
     } else if (action.includes("tasdiq") || action.includes("otp") || action.includes("check")) {
       decisionText = "Qo‘shimcha tasdiq talab qilindi";
+      decisionBadge = `<span class="decision-pill pill-challenge">Tasdiq talab qilindi</span>`;
       targetBody = challengeTableBody;
     } else if (action) {
       decisionText = "Bloklandi (phishing)";
+        decisionBadge = `<span class="decision-pill pill-block">Bloklandi</span>`;
       targetBody = blockTableBody;
     } else {
       decisionText = "Qaror aniqlanmadi";
@@ -759,6 +800,7 @@
       <td>${amountStr}</td>
       <td>${riskStr}</td>
       <td>${decisionText}</td>
+      <td>${decisionBadge}</td>
       <td style="max-width:260px;">${result.reason}</td>
     `;
     targetBody.prepend(tr);
