@@ -304,7 +304,127 @@
   border-color: rgba(239, 68, 68, 0.45);
   box-shadow: 0 0 8px rgba(239, 68, 68, 0.25);
 }
+/* APD chat widget (o'ng pastda) */
+#apdChatWidget {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  width: 320px;
+  max-height: 420px;
+  background: rgba(15, 23, 42, 0.98);
+  border-radius: 16px;
+  border: 1px solid rgba(55, 65, 81, 0.9);
+  box-shadow: 0 20px 60px rgba(15, 23, 42, 0.9);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  z-index: 40;
+  font-size: 13px;
+}
 
+.apd-chat-header {
+  padding: 8px 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  border-bottom: 1px solid rgba(31, 41, 55, 0.9);
+  background: radial-gradient(circle at top left, rgba(34,197,94,0.16), rgba(15,23,42,1));
+}
+
+.apd-chat-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #e5e7eb;
+}
+.apd-chat-subtitle {
+  font-size: 11px;
+  color: #9ca3af;
+}
+
+.apd-chat-toggle {
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.7);
+  background: transparent;
+  color: #9ca3af;
+  width: 26px;
+  height: 26px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.apd-chat-body {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.apd-chat-messages {
+  padding: 8px 10px;
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.apd-msg {
+  padding: 6px 8px;
+  border-radius: 10px;
+  max-width: 90%;
+  line-height: 1.4;
+}
+.apd-msg-bot {
+  background: rgba(30, 64, 175, 0.35);
+  border: 1px solid rgba(59, 130, 246, 0.6);
+  align-self: flex-start;
+}
+.apd-msg-user {
+  background: rgba(34, 197, 94, 0.18);
+  border: 1px solid rgba(34, 197, 94, 0.6);
+  align-self: flex-end;
+}
+
+.apd-chat-input-row {
+  display: flex;
+  gap: 6px;
+  padding: 6px;
+  border-top: 1px solid rgba(31, 41, 55, 0.9);
+}
+.apd-chat-input-row input {
+  flex: 1;
+  background: rgba(15, 23, 42, 0.96);
+  border-radius: 999px;
+  border: 1px solid rgba(55, 65, 81, 0.9);
+  color: #e5e7eb;
+  padding: 6px 10px;
+  font-size: 12px;
+}
+.apd-chat-input-row input:focus {
+  outline: none;
+  border-color: #22c55e;
+}
+.apd-chat-input-row button {
+  border-radius: 999px;
+  border: none;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  background: linear-gradient(120deg, #22c55e, #16a34a);
+  color: #022c22;
+}
+
+/* Kichik ekranlarda biroz kattaroq qilamiz */
+@media (max-width: 600px) {
+  #apdChatWidget {
+    right: 8px;
+    left: 8px;
+    width: auto;
+  }
+}
+
+    
     
   </style>
 </head>
@@ -386,7 +506,7 @@
 
         <div class="field">
           <label>amount (so‘m)</label>
-          <input id="amountInput" type="number" min="1000" step="1000" placeholder="masalan: 3500000" />
+          <input id="amountInput" type="number" min="1000" step="any" placeholder="masalan: 3500000" />
         </div>
 
         <div class="field">
@@ -799,7 +919,6 @@
       <td>${timeStr}</td>
       <td>${amountStr}</td>
       <td>${riskStr}</td>
-      <td>${decisionText}</td>
       <td>${decisionBadge}</td>
       <td style="max-width:260px;">${result.reason}</td>
     `;
@@ -808,6 +927,112 @@
 
   // Boshlang'ich render
   renderCustomers();
+  
 </script>
+  <script>
+  // APD chat bot – /ask endpoint
+  const APD_API_BASE = "https://ai500-api.azurewebsites.net";
+
+  const apdChatForm = document.getElementById("apdChatForm");
+  const apdChatInput = document.getElementById("apdChatInput");
+  const apdChatMessages = document.getElementById("apdChatMessages");
+  const apdChatToggleBtn = document.getElementById("apdChatToggleBtn");
+  const apdChatBody = document.getElementById("apdChatBody");
+
+  function addApdMessage(text, from = "bot") {
+    const div = document.createElement("div");
+    div.classList.add("apd-msg");
+    div.classList.add(from === "bot" ? "apd-msg-bot" : "apd-msg-user");
+    div.textContent = text;
+    apdChatMessages.appendChild(div);
+    apdChatMessages.scrollTop = apdChatMessages.scrollHeight;
+  }
+
+  async function callAskApi(question) {
+    const payload = { question: question };
+
+    const res = await fetch(`${APD_API_BASE}/api/ask`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+
+    if (!res.ok) {
+      const text = await res.text();
+      console.error("ASK API error:", res.status, text);
+      throw new Error("ASK API xatosi: " + res.status);
+    }
+
+    const data = await res.json();
+    console.log("ASK API raw:", data);
+
+    // Backend javobiga moslash: eng ko‘p uchraydigan maydon nomlari
+    const answer =
+      data.answer ??
+      data.response ??
+      data.output?.answer ??
+      data.output?.response ??
+      JSON.stringify(data);
+
+    return answer;
+  }
+
+  apdChatForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const text = apdChatInput.value.trim();
+    if (!text) return;
+
+    addApdMessage(text, "user");
+    apdChatInput.value = "";
+
+    try {
+      addApdMessage("Yuklanmoqda...", "bot");
+      const loadingNode = apdChatMessages.lastChild;
+
+      const answer = await callAskApi(text);
+      apdChatMessages.removeChild(loadingNode);
+      addApdMessage(answer, "bot");
+    } catch (err) {
+      console.error(err);
+      addApdMessage("Kechirasiz, API bilan bog‘lanib bo‘lmadi. Keyinroq qayta urinib ko‘ring.", "bot");
+    }
+  });
+
+  // Panelni yig‘ish/ochish tugmasi
+  apdChatToggleBtn.addEventListener("click", () => {
+    const isHidden = apdChatBody.style.display === "none";
+    apdChatBody.style.display = isHidden ? "flex" : "none";
+    apdChatToggleBtn.textContent = isHidden ? "−" : "+";
+  });
+</script>
+
+  <!-- APD Chat-bot paneli -->
+<div id="apdChatWidget">
+  <div class="apd-chat-header">
+    <div>
+      <div class="apd-chat-title">APD savol-javob</div>
+      <div class="apd-chat-subtitle">Model va demo haqida savol bering</div>
+    </div>
+    <button id="apdChatToggleBtn" class="apd-chat-toggle">−</button>
+  </div>
+
+  <div id="apdChatBody" class="apd-chat-body">
+    <div id="apdChatMessages" class="apd-chat-messages">
+      <div class="apd-msg apd-msg-bot">
+        Salom! Men APD bo‘yicha yordamchi botman. Demo, risk skoring yoki model qanday ishlashi haqida savol berishingiz mumkin.
+      </div>
+    </div>
+    <form id="apdChatForm" class="apd-chat-input-row">
+      <input
+        id="apdChatInput"
+        type="text"
+        placeholder="Savolingizni yozing..."
+        autocomplete="off"
+      />
+      <button type="submit">Yuborish</button>
+    </form>
+  </div>
+</div>
+
 </body>
 </html>
