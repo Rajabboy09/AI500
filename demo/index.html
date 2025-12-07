@@ -310,17 +310,18 @@
   right: 16px;
   bottom: 16px;
   width: 320px;
-  max-height: 420px;
+  max-height: 70vh;        
   background: rgba(15, 23, 42, 0.98);
   border-radius: 16px;
   border: 1px solid rgba(55, 65, 81, 0.9);
   box-shadow: 0 20px 60px rgba(15, 23, 42, 0.9);
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  overflow: hidden;        
   z-index: 40;
   font-size: 13px;
 }
+
 
 .apd-chat-header {
   padding: 8px 10px;
@@ -362,7 +363,8 @@
 .apd-chat-messages {
   padding: 8px 10px;
   flex: 1;
-  overflow-y: auto;
+  max-height: 100%;       
+  overflow-y: auto;       
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -421,8 +423,10 @@
     right: 8px;
     left: 8px;
     width: auto;
+    max-height: 70vh;   
   }
 }
+
 
     
     
