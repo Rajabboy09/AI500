@@ -250,13 +250,7 @@
     .field select:focus {
       border-color: var(--accent);
     }
-    .field-inline {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      margin-top: 6px;
-      font-size: 11px;
-    }
+
     .hint {
       font-size: 11px;
       color: var(--muted);
@@ -285,7 +279,7 @@
     </div>
     <nav class="nav">
       <a href="../">Asosiy sahifa</a>
-      <a href="#customers">Customerlar</a>
+      <a href="#customers">Userlar</a>
       <a href="#form">Tranzaksiya yuborish</a>
       <a href="#results-allow">Natijalar</a>
     </nav>
@@ -297,63 +291,59 @@
       <span>Interaktiv demo:</span> train datasetga mos tranzaksiya skoring
     </div>
     <p class="hero-subtitle">
-      Bu sahifada siz <strong>personal_profile</strong> bo‘yicha tanlangan customer uchun
-      <code>amount, category, channel, city, country, device_type, is_recurring</code> kabi
-      maydonlarni kiritasiz. Frontend so‘rovni <strong>train dataset strukturasi</strong>ga moslab
-      API’ga yuboradi, model esa riskni hisoblaydi.
+      Bu sahifada siz <strong>personal_profile</strong> bo‘yicha tanlangan user uchun
+      <code>amount, category, channel, city, country, device</code> kabi maydonlarni kiritasiz.
+      Frontend <strong>UserInput</strong> sxemasiga mos JSON’ni
+      <code>https://ai500-api.azurewebsites.net/demo</code> ga yuboradi, model esa riskni hisoblaydi.
     </p>
     <p class="hero-note">
-      🔎 Hakamlar uchun: frontend hech qanday riskni hisoblamaydi – JavaScript faqat
-      <code>POST /api/score</code> ga tranzaksiya logini yuboradi. Backenddagi train qilingan model
-      (transaction_id, customer_id, timestamp, day_of_week, hour_of_day, amount, currency,
-      category, channel, city, country, device_type, ip_address, merchant_id, counterparty_id,
-      is_recurring) asosida <strong>risk_score</strong> va <strong>decision</strong> qaytaradi.
+      🧠 Frontend risk hisoblamaydi – faqat API chaqiradi.
+      Backenddagi model <code>user_id, ip, day_of_week, hour_of_day, amount, category, channel, city, country, device</code>
+      bo‘yicha <strong>risk_score</strong> va <strong>action</strong>, <strong>reasons</strong> qaytaradi.
     </p>
   </section>
 
-  <!-- 1. CUSTOMER JADVALI -->
+  <!-- 1. USER JADVALI -->
   <section class="card" id="customers">
     <div class="card-header">
       <div>
         <div class="card-label">1-qadam</div>
-        <div class="card-title">Customer’ni tanlang (Personal profile asosida)</div>
+        <div class="card-title">User’ni tanlang (Personal profile asosida)</div>
       </div>
       <div class="card-tag">personal_profile.csv</div>
     </div>
     <p style="font-size:12px; margin-bottom:8px;">
-      Jadvaldagi 4 ta customer – sizning <code>personal_profile.csv</code> faylingiz asosida tuzilgan.
-      Model skoringda customer_id bo‘yicha aynan shu profildan foydalanadi.
+      Jadvaldagi 4 ta user – <code>personal_profile.csv</code> asosida. Modelda user_id’lar
+      <strong>0,1,2,3</strong> tarzida indekslangan.
     </p>
     <div class="table-wrapper">
       <table>
         <thead>
           <tr>
-            <th>customer_id</th>
+            <th>user_id</th>
             <th>Segment</th>
             <th>Tranzaksiya profili</th>
             <th></th>
           </tr>
         </thead>
-        <tbody id="customerTableBody">
-          <!-- JS orqali to‘ldiriladi -->
-        </tbody>
+        <tbody id="customerTableBody"></tbody>
       </table>
     </div>
   </section>
 
-  <!-- 2. FORMA: TRAIN DATASETGA MOS KIRITISH -->
+  <!-- 2. FORMA -->
   <section class="card" id="form">
     <div class="card-header">
       <div>
         <div class="card-label">2-qadam</div>
-        <div class="card-title">Tranzaksiyani yuborish (train dataset formatida)</div>
+        <div class="card-title">Tranzaksiyani yuborish (UserInput formatida)</div>
       </div>
     </div>
 
     <form id="paymentForm">
       <div class="form-grid">
         <div class="field">
-          <label>customer_id (tanlangan)</label>
+          <label>user_id (tanlangan)</label>
           <input id="selectedCustomerInput" type="text" placeholder="Avval jadvaldan tanlang" readonly />
         </div>
 
@@ -366,11 +356,13 @@
           <label>category</label>
           <select id="categorySelect">
             <option value="food">food</option>
-            <option value="utilities">utilities</option>
+            <option value="entertainment">entertainment</option>
             <option value="online_services">online_services</option>
-            <option value="education">education</option>
+            <option value="utilities">utilities</option>
+            <option value="health">health</option>
             <option value="transport">transport</option>
-            <option value="shopping">shopping</option>
+            <option value="clothing">clothing</option>
+            <option value="education">education</option>
           </select>
         </div>
 
@@ -378,8 +370,9 @@
           <label>channel</label>
           <select id="channelSelect">
             <option value="pos">pos</option>
-            <option value="online_payment">online_payment</option>
+            <option value="atm_withdrawal">atm_withdrawal</option>
             <option value="transfer">transfer</option>
+            <option value="online_payment">online_payment</option>
           </select>
         </div>
 
@@ -388,10 +381,16 @@
           <select id="citySelect">
             <option value="Tashkent">Tashkent</option>
             <option value="Fergana">Fergana</option>
+            <option value="Samarkand">Samarkand</option>
             <option value="Namangan">Namangan</option>
-            <option value="Nukus">Nukus</option>
             <option value="Bukhara">Bukhara</option>
             <option value="Andijan">Andijan</option>
+            <option value="Nukus">Nukus</option>
+            <option value="Moscow">Moscow</option>
+            <option value="Dubai">Dubai</option>
+            <option value="Almaty">Almaty</option>
+            <option value="Istanbul">Istanbul</option>
+            <option value="Berlin">Berlin</option>
           </select>
         </div>
 
@@ -399,34 +398,21 @@
           <label>country</label>
           <select id="countrySelect">
             <option value="Uzbekistan">Uzbekistan</option>
-            <option value="Germany">Germany</option>
             <option value="Russia">Russia</option>
+            <option value="UAE">UAE</option>
             <option value="Kazakhstan">Kazakhstan</option>
+            <option value="Turkey">Turkey</option>
+            <option value="Germany">Germany</option>
           </select>
         </div>
 
         <div class="field">
-          <label>device_type</label>
+          <label>device</label>
           <select id="deviceSelect">
+            <option value="Windows-PC">Windows-PC</option>
             <option value="Android">Android</option>
             <option value="iPhone">iPhone</option>
-            <option value="Windows-PC">Windows-PC</option>
-            <option value="Web">Web</option>
-            <option value="Unknown">Unknown</option>
           </select>
-        </div>
-
-        <div class="field">
-          <label>currency</label>
-          <input type="text" value="UZS" readonly />
-        </div>
-
-        <div class="field">
-          <label>is_recurring</label>
-          <div class="field-inline">
-            <input id="isRecurringCheckbox" type="checkbox" />
-            <span>Abonentlik / takroriy to‘lov (1 bo‘lsa belgilangan)</span>
-          </div>
         </div>
       </div>
 
@@ -434,15 +420,19 @@
         Tranzaksiyani modelga yuborish ▶
       </button>
       <span id="formError" class="hint" style="color:#f97373;"></span>
+      <div class="hint">
+        API’ga yuboriladigan JSON <code>UserInput</code> sxemasiga mos:
+        <code>{user_id, ip, day_of_week, hour_of_day, amount, category, channel, city, country, device}</code>.
+      </div>
     </form>
   </section>
 
-  <!-- 3. NATIJALAR – HAR BIR JADVAL USTUN SHAKLDA -->
+  <!-- 3. NATIJALAR -->
   <section id="results-allow" class="card">
     <div class="card-header">
       <div>
         <div class="card-label">3-qadam</div>
-        <div class="card-title">Ruxsat berilgan tranzaksiyalar (ALLOW / Low risk)</div>
+        <div class="card-title">Ruxsat berilgan tranzaksiyalar (action=ruxsat)</div>
       </div>
     </div>
     <div class="table-wrapper">
@@ -450,7 +440,7 @@
         <thead>
           <tr>
             <th>transaction_id</th>
-            <th>customer_id</th>
+            <th>user_id</th>
             <th>Vaqt</th>
             <th>Summa</th>
             <th>risk_score</th>
@@ -458,8 +448,7 @@
             <th>Sabablari</th>
           </tr>
         </thead>
-        <tbody id="allowTableBody">
-        </tbody>
+        <tbody id="allowTableBody"></tbody>
       </table>
     </div>
   </section>
@@ -468,7 +457,7 @@
     <div class="card-header">
       <div>
         <div class="card-label">3-qadam</div>
-        <div class="card-title">Qo‘shimcha tasdiq talab qilingan (CHALLENGE / Medium)</div>
+        <div class="card-title">Qo‘shimcha tasdiq talab qilingan (agar keyinchalik qo‘shilsin)</div>
       </div>
     </div>
     <div class="table-wrapper">
@@ -476,7 +465,7 @@
         <thead>
           <tr>
             <th>transaction_id</th>
-            <th>customer_id</th>
+            <th>user_id</th>
             <th>Vaqt</th>
             <th>Summa</th>
             <th>risk_score</th>
@@ -484,8 +473,7 @@
             <th>Sabablari</th>
           </tr>
         </thead>
-        <tbody id="challengeTableBody">
-        </tbody>
+        <tbody id="challengeTableBody"></tbody>
       </table>
     </div>
   </section>
@@ -494,7 +482,7 @@
     <div class="card-header">
       <div>
         <div class="card-label">3-qadam</div>
-        <div class="card-title">Bloklangan tranzaksiyalar (BLOCK / High risk)</div>
+        <div class="card-title">Bloklangan tranzaksiyalar (agar action blok bo‘lsa)</div>
       </div>
     </div>
     <div class="table-wrapper">
@@ -502,7 +490,7 @@
         <thead>
           <tr>
             <th>transaction_id</th>
-            <th>customer_id</th>
+            <th>user_id</th>
             <th>Vaqt</th>
             <th>Summa</th>
             <th>risk_score</th>
@@ -510,8 +498,7 @@
             <th>Sabablari</th>
           </tr>
         </thead>
-        <tbody id="blockTableBody">
-        </tbody>
+        <tbody id="blockTableBody"></tbody>
       </table>
     </div>
   </section>
@@ -521,48 +508,49 @@
     <div><a href="../">← Asosiy sahifaga qaytish</a></div>
   </footer>
 </div>
-<script>
-  // 🔧 Backend API URL'ini shu yerda moslashtirasiz
-  const url = "https://ai500-api.azurewebsites.net/demo";
 
-  // personal_profile.csv asosida demo userlar
+<script>
+  // Backend API bazaviy URL
+  const API_BASE = "https://ai500-api.azurewebsites.net";
+
+  // user_id lar 0,1,2,3
   const customers = [
     {
-      id: 1,
-      label: "User 1",
+      id: 0,
+      label: "User 0",
       n_txn: 95,
-      avg_amount: 560000,
-      median_amount: 428000,
+      avg_amount: 564270.3644912499,
+      median_amount: 428912.9649188205,
       home_cities: "Nukus|Fergana|Samarkand",
       main_devices: "iPhone|Android|Windows-PC",
       segment: "High-volume user"
     },
     {
-      id: 2,
-      label: "User 2",
+      id: 1,
+      label: "User 1",
       n_txn: 115,
-      avg_amount: 465500,
-      median_amount: 451100,
+      avg_amount: 465568.70979364,
+      median_amount: 451119.67757664097,
       home_cities: "Fergana|Andijan|Namangan",
       main_devices: "iPhone|Android|Windows-PC",
       segment: "Stable mid-range"
     },
     {
-      id: 3,
-      label: "User 3",
+      id: 2,
+      label: "User 2",
       n_txn: 98,
-      avg_amount: 410300,
-      median_amount: 315400,
+      avg_amount: 410314.8093238202,
+      median_amount: 315497.1661488553,
       home_cities: "Fergana|Namangan|Nukus",
       main_devices: "Android|iPhone|Windows-PC",
       segment: "Mixed behavior"
     },
     {
-      id: 4,
-      label: "User 4",
+      id: 3,
+      label: "User 3",
       n_txn: 99,
-      avg_amount: 736300,
-      median_amount: 545800,
+      avg_amount: 736342.7363907557,
+      median_amount: 545879.6808687795,
       home_cities: "Bukhara|Tashkent|Namangan",
       main_devices: "Android|Windows-PC|iPhone",
       segment: "High-value, volatile"
@@ -572,7 +560,7 @@
   const customerTableBody = document.getElementById("customerTableBody");
   const selectedCustomerInput = document.getElementById("selectedCustomerInput");
   const formError = document.getElementById("formError");
-  let selectedUserId = null;  // user_id
+  let selectedUserId = null;
 
   function renderCustomers() {
     customers.forEach((c) => {
@@ -650,18 +638,21 @@
     return `10.${randomInt(0,255)}.${randomInt(0,255)}.${randomInt(0,255)}`;
   }
 
-  // 🔥 API-ga aynan UserInput strukturasi bo'yicha yuboramiz
   async function callScoringApi(userPayload) {
-    const res = await fetch(url, {
+    const res = await fetch(`${API_BASE}/demo`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(userPayload),
     });
 
     if (!res.ok) {
+      const text = await res.text();
+      console.error("API error:", res.status, text);
       throw new Error("API xatosi: " + res.status);
     }
-    return await res.json();
+    const data = await res.json();
+    console.log("API raw response:", data);
+    return data;
   }
 
   const paymentForm = document.getElementById("paymentForm");
@@ -694,7 +685,6 @@
     const dayOfWeek = now.getDay();   // 0–6
     const hourOfDay = now.getHours(); // 0–23
 
-    // APIga ketadigan strukturamiz: UserInput
     const userPayload = {
       user_id: selectedUserId,
       ip: randomIp(),
@@ -708,7 +698,6 @@
       device: deviceSelect.value
     };
 
-    // Jadvalga chizish uchun qo'shimcha: transaction_id, vaqt
     const txMeta = {
       transaction_id: generateTxnId(),
       user_id: selectedUserId,
@@ -716,67 +705,65 @@
       amount: amountVal
     };
 
-   try {
-  formError.textContent = "Modelga so‘rov yuborilmoqda...";
-  const apiResult = await callScoringApi(userPayload);
-  formError.textContent = "";
+    try {
+      formError.textContent = "Modelga so‘rov yuborilmoqda...";
+      const apiResult = await callScoringApi(userPayload);
+      formError.textContent = "";
 
-  // 👉 Backend strukturasiga moslashamiz
-  const output = apiResult.output || apiResult;
+      const output = apiResult.output || apiResult;
 
-  const result = {
-    riskScore: output.risk_score ?? 0,
-    action: output.action ?? "",
-    // array bo'lsa join qilamiz, bo'lmasa bitta string
-    reason: Array.isArray(output.reasons)
-      ? output.reasons.join(", ")
-      : (output.reason ?? "")
-  };
+      const result = {
+        riskScore: output.risk_score ?? 0,
+        action: output.action ?? "",
+        reason: Array.isArray(output.reasons)
+          ? output.reasons.join(", ")
+          : (output.reason ?? "")
+      };
 
-  addToResultTables(txMeta, result);
-} catch (err) {
-  console.error(err);
-  formError.textContent = "API bilan bog'lanib bo'lmadi. Backend URL va CORS sozlamalarini tekshiring.";
-}
+      addToResultTables(txMeta, result);
+    } catch (err) {
+      console.error(err);
+      formError.textContent = "API bilan bog'lanib bo'lmadi. Backend URL va CORS sozlamalarini tekshiring.";
+    }
 
     amountInput.value = "";
   });
 
-function addToResultTables(tx, result) {
-  const timeStr = formatTime(tx.timestamp);
-  const amountStr = formatAmount(tx.amount) + " so‘m";
-  const riskStr = Number(result.riskScore ?? 0).toFixed(3);
+  function addToResultTables(tx, result) {
+    const timeStr = formatTime(tx.timestamp);
+    const amountStr = formatAmount(tx.amount) + " so‘m";
+    const riskStr = Number(result.riskScore ?? 0).toFixed(3);
 
-  // action -> qaror matni va jadval
-  let decisionText = "";
-  let targetBody = allowTableBody;
+    const action = (result.action || "").toLowerCase();
+    let decisionText = "";
+    let targetBody = allowTableBody;
 
-  const action = (result.action || "").toLowerCase();
+    if (action.includes("ruxsat")) {
+      decisionText = "Ruxsat berildi";
+      targetBody = allowTableBody;
+    } else if (action.includes("tasdiq") || action.includes("verify") || action.includes("check")) {
+      decisionText = "Qo‘shimcha tasdiq talab qilindi";
+      targetBody = challengeTableBody;
+    } else if (action) {
+      decisionText = "Bloklandi (phishing)";
+      targetBody = blockTableBody;
+    } else {
+      decisionText = "Qaror aniqlanmadi";
+      targetBody = allowTableBody;
+    }
 
-  if (action.includes("ruxsat")) {
-    decisionText = "Ruxsat berildi";
-    targetBody = allowTableBody;
-  } else if (action.includes("otp") || action.includes("verify") || action.includes("check")) {
-    decisionText = "Qo‘shimcha tasdiq talab qilindi";
-    targetBody = challengeTableBody;
-  } else {
-    decisionText = "Bloklandi (phishing)";
-    targetBody = blockTableBody;
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${tx.transaction_id}</td>
+      <td>${tx.user_id}</td>
+      <td>${timeStr}</td>
+      <td>${amountStr}</td>
+      <td>${riskStr}</td>
+      <td>${decisionText}</td>
+      <td style="max-width:260px;">${result.reason}</td>
+    `;
+    targetBody.prepend(tr);
   }
-
-  const tr = document.createElement("tr");
-  tr.innerHTML = `
-    <td>${tx.transaction_id}</td>
-    <td>${tx.user_id}</td>
-    <td>${timeStr}</td>
-    <td>${amountStr}</td>
-    <td>${riskStr}</td>
-    <td>${decisionText}</td>
-    <td style="max-width:260px;">${result.reason}</td>
-  `;
-  targetBody.prepend(tr);
-}
-
 
   // Boshlang'ich render
   renderCustomers();
