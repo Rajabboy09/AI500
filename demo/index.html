@@ -330,7 +330,16 @@
   font-family: system-ui, -apple-system, sans-serif;
   font-size: 13px;
 }
+    
+/* Yig'ilgan (minimized) holat uchun maxsus stil */
+#apdChatWidget.minimized {
+  height: auto !important; /* Qat'iy balandlikni bekor qilamiz */
+}
 
+/* Vidjet yig'ilganda ichki qism ko'rinmasin */
+#apdChatWidget.minimized .apd-chat-body {
+  display: none !important;
+}
 /* 1. Yuqori qism (Header) */
 .apd-chat-header {
   padding: 10px 12px;
@@ -1083,11 +1092,20 @@
     }
   });
 
-  // Panelni yig‘ish/ochish tugmasi
+// 1. Vidjetning asosiy qutisini topib olamiz
+  const widgetContainer = document.getElementById("apdChatWidget");
+
+  // 2. Tugma bosilganda ishlaydigan hodisani o'zgartiramiz
   apdChatToggleBtn.addEventListener("click", () => {
-    const isHidden = apdChatBody.style.display === "none";
-    apdChatBody.style.display = isHidden ? "flex" : "none";
-    apdChatToggleBtn.textContent = isHidden ? "−" : "+";
+    // "minimized" klassini yoqamiz yoki o'chiramiz
+    widgetContainer.classList.toggle("minimized");
+    
+    // Klass borligiga qarab tugma belgisini (+/-) o'zgartiramiz
+    if (widgetContainer.classList.contains("minimized")) {
+      apdChatToggleBtn.textContent = "+"; // Yig'ilgan bo'lsa "+"
+    } else {
+      apdChatToggleBtn.textContent = "−"; // Ochilgan bo'lsa "-"
+    }
   });
 </script>
 
