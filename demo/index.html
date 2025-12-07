@@ -776,15 +776,15 @@
     let targetBody = allowTableBody;
 
     if (action.includes("ruxsat")) {
-      decisionText = "Ruxsat berildi";
+      
       decisionBadge = `<span class="decision-pill pill-allow">Ruxsat berildi</span>`;
       targetBody = allowTableBody;
     } else if (action.includes("tasdiq") || action.includes("otp") || action.includes("check")) {
-      decisionText = "Qo‘shimcha tasdiq talab qilindi";
+      
       decisionBadge = `<span class="decision-pill pill-challenge">Tasdiq talab qilindi</span>`;
       targetBody = challengeTableBody;
     } else if (action) {
-      decisionText = "Bloklandi (phishing)";
+      
         decisionBadge = `<span class="decision-pill pill-block">Bloklandi</span>`;
       targetBody = blockTableBody;
     } else {
